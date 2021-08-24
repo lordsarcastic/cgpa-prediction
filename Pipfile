@@ -8,6 +8,9 @@ numpy = "*"
 pandas = "*"
 spyder-kernels = "*"
 pydotplus = "*"
+django = "*"
+djangorestframework = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
