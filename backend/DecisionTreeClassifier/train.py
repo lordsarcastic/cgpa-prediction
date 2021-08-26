@@ -8,7 +8,7 @@ from sklearn.tree import DecisionTreeClassifier as DCF
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
-from normalize import (
+from .normalize import (
     column_mapping,
     map_columns,
     GP_VALUE,
@@ -45,17 +45,17 @@ TEST_SIZE = 0.5
 
 RANDOM_STATE = 1
 
-file_data = pd.read_excel(DATA_FILE)
+# file_data = pd.read_excel(DATA_FILE)
 
 def read_file_data(dataset: str) -> pd.DataFrame:
     return pd.read_excel(dataset)
 
 
-def produce_dataframe(file_data: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+def produce_dataframe(file_data: pd.DataFrame, columns: List[str]=None) -> pd.DataFrame:
     data_frame = pd.DataFrame(file_data, columns=columns)
     return data_frame
 
-def normalize_dataframe(feature_cols, target_col, data=file_data, grade_value=GRADE_VALUE, gp_value=GP_VALUE):
+def normalize_dataframe(feature_cols, target_col, data, grade_value=GRADE_VALUE, gp_value=GP_VALUE):
     data = produce_dataframe(data, [*feature_cols, target_col])
     data = map_columns(data, feature_cols, grade_value)
     data[target_col] = data[target_col].fillna('').map(uppercase).map(lambda x: x.strip())
@@ -113,4 +113,4 @@ def main(
     print(f"Accuracy: {metrics.accuracy_score(trained['target_prediction'], trained['target_test'])}")
 
     return trained
-main(DATA_FILE, FEATURE_COLUMNS[1:], TARGET_COLUMN[0])
+# main(DATA_FILE, FEATURE_COLUMNS[1:], TARGET_COLUMN[0])
