@@ -9,8 +9,8 @@ pandas = "*"
 spyder-kernels = "*"
 pydotplus = "*"
 django = "*"
-djangorestframework = "*"
 django-cors-headers = "*"
+djangorestframework = "*"
 
 [dev-packages]
 
