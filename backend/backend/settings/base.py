@@ -1,12 +1,19 @@
+from os import environ
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+def produce_from_env(value: str, default: any = None) -> any:
+    return environ.get(value, default)
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = 'django-insecure-1(xm8)reb=+gcc!c7k5cvkggw(6abmr^&z14=z9#_ztp2%qaxk'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    produce_from_env('HOST')
+]
 
 
 INSTALLED_APPS = [
@@ -20,9 +27,15 @@ INSTALLED_APPS = [
 
     # custom apps
     'authentify.apps.AuthentifyConfig',
+    'prediction.apps.PredictionConfig',
+
+    # third-party apps
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,13 +67,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -71,7 +77,7 @@ AUTH_USER_MODEL = 'authentify.User'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Algiers'
 
 USE_I18N = True
 
@@ -79,7 +85,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
