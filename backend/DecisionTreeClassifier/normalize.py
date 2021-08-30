@@ -1,3 +1,6 @@
+from typing import Dict, List
+from pandas.core.frame import DataFrame
+
 GRADE_VALUE = {
     'A': 6,
     'B': 5,
@@ -15,14 +18,16 @@ GP_VALUE = {
     'FIRST CLASS': 5
 }
 
-uppercase = lambda x: x.upper()
+uppercase = lambda x: x.upper() or 1
 
-def column_mapping(data, column, value_mappings):
+
+
+def column_mapping(data: DataFrame, column: str, value_mappings: Dict[str, int]):
     data[column] = data[column].map(value_mappings)
     return data
 
 
-def map_columns(data, columns, value_mappings):
+def map_columns(data: DataFrame, columns: List[str], value_mappings: Dict[str, int]):
     for col in columns:
         data = column_mapping(data, col, value_mappings)
     return data

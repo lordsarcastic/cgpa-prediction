@@ -3,20 +3,30 @@
 import pickle, os
 import pandas as pd
 from typing import List, Dict
+from pandas.core.frame import DataFrame
 # from sklearn.externals import joblib
 from sklearn.tree import DecisionTreeClassifier as DCF
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
-from .normalize import (
-    column_mapping,
-    map_columns,
-    GP_VALUE,
-    GRADE_VALUE,
-    uppercase
-)
-
 print(os.listdir('.'))
+
+GRADE_VALUE = {
+    'A': 6,
+    'B': 5,
+    'C': 4,
+    'D': 3,
+    'E': 2,
+    'F': 1
+}
+
+GP_VALUE = {
+    'PASS': 1,
+    'THIRD CLASS': 2,
+    'SECOND CLASS LOWER': 3,
+    'SECOND CLASS UPPER': 4,
+    'FIRST CLASS': 5
+}
 
 FEATURE_COLUMNS = [
     'MATNO',
@@ -41,33 +51,52 @@ COLUMNS = [
 
 DATA_FILE = '../results.xlsx'
 
-TEST_SIZE = 0.5
+TEST_SIZE = 0.8
 
 RANDOM_STATE = 1
 
-# file_data = pd.read_excel(DATA_FILE)
+ALLOWED_EXTENSIONS = {
+    'xlsx': pd.read_excel,
+    'csv': pd.read_csv
+}
 
-def read_file_data(dataset: str) -> pd.DataFrame:
-    return pd.read_excel(dataset)
+def transform_col(value: str, mappings: Dict[str, int], default: int) -> int:
+    return mappings.get(value.upper(), default)
+
+def read_file_data(dataset: str, extension: str) -> pd.DataFrame:
+    if extension not in ALLOWED_EXTENSIONS.keys():
+        raise ValueError(f'Expected value of type {ALLOWED_EXTENSIONS}, found {extension}')
+    
+    loaded_dataset = ALLOWED_EXTENSIONS[extension](dataset)
+
+    return loaded_dataset
 
 
 def produce_dataframe(file_data: pd.DataFrame, columns: List[str]=None) -> pd.DataFrame:
     data_frame = pd.DataFrame(file_data, columns=columns)
+
+    if not data_frame:
+        raise ValueError(f"Column(s) '{columns}' not found in dataframe")
     return data_frame
 
-def normalize_dataframe(feature_cols, target_col, data, grade_value=GRADE_VALUE, gp_value=GP_VALUE):
-    data = produce_dataframe(data, [*feature_cols, target_col])
-    data = map_columns(data, feature_cols, grade_value)
-    data[target_col] = data[target_col].fillna('').map(uppercase).map(lambda x: x.strip())
-    data = column_mapping(data, target_col, gp_value).fillna(0)
+def normalize_dataframe(feature_cols: List[str], target_col: str, data: DataFrame, grade_value: Dict[str, int]=GRADE_VALUE, gp_value: Dict[str, int]=GP_VALUE):
+    data = produce_dataframe(
+        data,
+        [*feature_cols, target_col]
+    ).fillna('').applymap(lambda value: value.strip())
+
+    data[target_col] = data[target_col].apply(lambda cell: transform_col(cell, gp_value, 1))
+    for feature in feature_cols:
+        data[feature] = data[feature].apply(lambda cell: transform_col(cell, grade_value, 1))
     return data
 
-def split_dataset(features, target, test_size=TEST_SIZE, random_state=RANDOM_STATE) -> list:
+
+def split_dataset(features: List[str], target: str, test_size=TEST_SIZE, random_state=RANDOM_STATE) -> list:
     splitted_data = train_test_split(
         features,
         target,
-        test_size=TEST_SIZE,
-        random_state=RANDOM_STATE
+        test_size=test_size,
+        random_state=random_state
     )
     
     return splitted_data
@@ -97,6 +126,7 @@ def train(splitted_dataset):
 
 def main(
     file_data: str,
+    file_data_extension: str,
     feature_col: List[str],
     target_col: str,
     grade_value: Dict[str, int]=GRADE_VALUE,
@@ -104,7 +134,7 @@ def main(
     test_size: float=TEST_SIZE,
     random_state: int=RANDOM_STATE
 ):
-    excel_data = read_file_data(file_data)
+    excel_data = read_file_data(file_data, file_data_extension)
     processed_data = normalize_dataframe(feature_col, target_col, excel_data, grade_value, gp_value)
     feature = processed_data[feature_col]
     target = processed_data[target_col]
@@ -113,4 +143,4 @@ def main(
     print(f"Accuracy: {metrics.accuracy_score(trained['target_prediction'], trained['target_test'])}")
 
     return trained
-# main(DATA_FILE, FEATURE_COLUMNS[1:], TARGET_COLUMN[0])
+# main(DATA_FILE, 'xlsx', ['asdf'], TARGET_COLUMN[0])
