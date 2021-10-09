@@ -25,10 +25,17 @@ def raise_validation_error_for_dataframe(action: Callable, error_msg: str, excep
     
     return result
 
+def clean_array(array: List) -> List:
+    """
+    :param array: an array of values of different types
+    :return: an array containing truthy values in `array`
+    """
+
+    return list(filter(bool, array))
 
 class DataFrameField(serializers.FileField):
     def to_representation(self, value):
-        file_data = read_file_data(value)
+        file_data = read_file_data(value.path)
         dataframe = produce_dataframe(file_data)
         return dataframe.head().to_dict()
 
@@ -50,8 +57,7 @@ class TrainingModelSerializer(serializers.ModelSerializer):
     
     @lru_cache
     def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
-        extension = dataset_path.name.split('.')[-1]
-        file_data = read_file_data(dataset_path, extension)
+        file_data = read_file_data(dataset_path.name)
         dataframe = produce_dataframe(file_data, columns)
         return dataframe
 
@@ -67,27 +73,25 @@ class TrainingModelSerializer(serializers.ModelSerializer):
             value_array = arrayfy_strings(value)
         except:
             raise serializers.ValidationError('Columns are not valid as an array. Ensure input is a string of comma-separated values')
-        
-        return stringify_array(value_array)
+
+        return value_array
+        # return stringify_array(value_array)
     
 
     def validate(self, attrs):
         dataframe = self.get_dataframe_from_dataset(attrs['dataset'])
-        columns = [
+        columns = clean_array([
             attrs.get('target_column'),
             *attrs.get('feature_columns')
-        ]
+        ])
         for column in columns:
-            dataframe[column] = raise_validation_error_for_dataframe(
-                produce_dataframe,
-                f"Column '{column}' does not exist in dataset",
-                ValueError,
+            if column and column not in dataframe.columns:
+                raise ValueError(f"{column} is not a column in dataframe")
+        if columns:
+            attrs['dataset'] = normalize_dataframe(
+                attrs.get('feature_column'),
+                attrs.get('target_column'),
                 dataframe
             )
-        attrs['dataset'] = normalize_dataframe(
-            attrs.get('feature_column'),
-            attrs.get('target_column'),
-            dataframe
-        )
         
         return super().validate(attrs)

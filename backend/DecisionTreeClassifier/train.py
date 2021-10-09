@@ -63,7 +63,8 @@ ALLOWED_EXTENSIONS = {
 def transform_col(value: str, mappings: Dict[str, int], default: int) -> int:
     return mappings.get(value.upper(), default)
 
-def read_file_data(dataset: str, extension: str) -> pd.DataFrame:
+def read_file_data(dataset: str) -> pd.DataFrame:
+    extension = dataset.split('.')[-1]
     if extension not in ALLOWED_EXTENSIONS.keys():
         raise ValueError(f'Expected value of type {ALLOWED_EXTENSIONS}, found {extension}')
     
@@ -75,7 +76,7 @@ def read_file_data(dataset: str, extension: str) -> pd.DataFrame:
 def produce_dataframe(file_data: pd.DataFrame, columns: List[str]=None) -> pd.DataFrame:
     data_frame = pd.DataFrame(file_data, columns=columns)
 
-    if not data_frame:
+    if data_frame.empty:
         raise ValueError(f"Column(s) '{columns}' not found in dataframe")
     return data_frame
 
