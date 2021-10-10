@@ -12,7 +12,8 @@ SECRET_KEY = 'django-insecure-1(xm8)reb=+gcc!c7k5cvkggw(6abmr^&z14=z9#_ztp2%qaxk
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    produce_from_env('HOST')
+    produce_from_env('HOST'),
+    'localhost'
 ]
 
 

@@ -45,7 +45,6 @@ class TimesinceField(serializers.ReadOnlyField):
         return timesince(value)
 
 
-
 class TrainingModelSerializer(serializers.ModelSerializer):
     dataset = DataFrameField()
     last_updated = TimesinceField()
@@ -95,3 +94,9 @@ class TrainingModelSerializer(serializers.ModelSerializer):
             )
         
         return super().validate(attrs)
+
+
+class SetFeatureColumnsSerializer(TrainingModelSerializer):
+    class Meta:
+        model = TrainingModel
+        fields = ('feature_columns',)
