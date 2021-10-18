@@ -3,14 +3,13 @@ from functools import lru_cache
 from typing import List
 
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from backend.Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
 from .utils import arrayfy_strings
 
-
-from DecisionTreeClassifier import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS, normalize_dataframe
 
 def clean_array(array: List) -> List:
     """
@@ -36,7 +35,6 @@ class TrainingModel(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=64)
     dataset = models.FileField(upload_to='models', validators=[validate_dataset])
-    # cleaned_dataset = models.FileField(upload_to='models/cleaned', blank=True)
     target_column = models.CharField(max_length=50, blank=True)
     feature_columns = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -84,20 +82,6 @@ class TrainingModel(models.Model):
         if not value_array:
             self.feature_columns = str()
 
-        # dataframe = self.get_dataframe_from_dataset(self.dataset)
-        # if self.target_column and value_array:
-        #     csv_dataframe = normalize_dataframe(
-        #         value_array,
-        #         self.target_column,
-        #         dataframe
-        #     ).to_csv(mode='w')
-        #     file = ContentFile(
-        #         csv_dataframe.encode('utf-8'),
-        #         str(self.uuid)
-        #     )
-        #     self.cleaned_dataset = file
-        
-        
         return super().save(*args)
 
     def get_absolute_url(self):

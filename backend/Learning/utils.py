@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import pickle, os
 import pandas as pd
+import numpy as np
 from typing import List, Dict
 from pandas.core.frame import DataFrame
-# from sklearn.externals import joblib
-from sklearn.tree import DecisionTreeClassifier as DCF
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-from sklearn import metrics
+from sklearn.tree import DecisionTreeClassifier as DCF
 
-print(os.listdir('.'))
 
 GRADE_VALUE = {
     'A': 6,
@@ -114,20 +113,8 @@ def train(splitted_dataset):
     }
     return results
 
-# def pickle_trained_model(model, file_name):
-#     joblib.dump(model, file_name)
-
-# def load_trained_model(file_name):
-#     model = joblib.load(file_name)
-#     return model
-
-# pickle_trained_model(trained['clf'], 'decision_tree.joblib')
-
-
-
-def main(
+def prepare_dataset(
     file_data: str,
-    file_data_extension: str,
     feature_col: List[str],
     target_col: str,
     grade_value: Dict[str, int]=GRADE_VALUE,
@@ -135,13 +122,11 @@ def main(
     test_size: float=TEST_SIZE,
     random_state: int=RANDOM_STATE
 ):
-    excel_data = read_file_data(file_data, file_data_extension)
+    excel_data = read_file_data(file_data)
     processed_data = normalize_dataframe(feature_col, target_col, excel_data, grade_value, gp_value)
     feature = processed_data[feature_col]
     target = processed_data[target_col]
     train_data = split_dataset(feature, target, test_size, random_state)
-    trained = train(train_data)
-    print(f"Accuracy: {metrics.accuracy_score(trained['target_prediction'], trained['target_test'])}")
+    return train_data
 
-    return trained
-# main(DATA_FILE, 'xlsx', ['asdf'], TARGET_COLUMN[0])
+# pearson_feature_selection(DATA_FILE, FEATURE_COLUMNS[1:], TARGET_COLUMN[0])

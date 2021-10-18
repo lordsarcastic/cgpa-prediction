@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from DecisionTreeClassifier import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS, normalize_dataframe
+from backend.Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
 from .models import TrainingModel
 from .utils import arrayfy_strings
 
