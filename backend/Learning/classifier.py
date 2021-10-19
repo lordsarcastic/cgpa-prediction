@@ -6,7 +6,7 @@ from .utils import prepare_dataset
 
 
 
-def decision_tree_train(splitted_dataset):
+def decision_tree_classifier(splitted_dataset):
     splitted_dataset = prepare_dataset(
 
     )
