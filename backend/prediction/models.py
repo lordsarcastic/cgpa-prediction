@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from backend.Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
+from Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
 from .utils import arrayfy_strings
 
 
@@ -32,9 +32,14 @@ def validate_feature_columns(value):
 
 
 class TrainingModel(models.Model):
+    class Algorithm(models.TextChoices):
+        rfe = "rfe", "Recursive Feature Elimination"
+        pearson = "pearson", "Pearson Correlation"
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=64)
     dataset = models.FileField(upload_to='models', validators=[validate_dataset])
+    algorithm = models.CharField(choices=Algorithm.choices, max_length=7, blank=True)
     target_column = models.CharField(max_length=50, blank=True)
     feature_columns = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -73,14 +78,15 @@ class TrainingModel(models.Model):
             if column and column not in dataframe.columns:
                 raise ValidationError(_(f"{column} is not a column in dataset"))
         
-    def save(self, *args):
-        value_array = arrayfy_strings(self.feature_columns)
-        if value_array:
-            self.feature_columns = ', '.join(value_array)
-        if not self.target_column:
-            self.target_column = str()
-        if not value_array:
-            self.feature_columns = str()
+    def save(self, validated=False, *args):
+        if not validated:
+            value_array = arrayfy_strings(self.feature_columns)
+            if value_array:
+                self.feature_columns = ', '.join(value_array)
+            if not self.target_column:
+                self.target_column = str()
+            if not value_array:
+                self.feature_columns = str()
 
         return super().save(*args)
 

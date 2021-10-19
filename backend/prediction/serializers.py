@@ -1,14 +1,15 @@
 from functools import lru_cache
-from typing import Callable, List, Union
+from typing import Callable, Dict, List, Union
 
 from django.core.exceptions import ValidationError
 from django.utils.timesince import timesince
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from Learning.feature_selection import pearson_feature_selection, rfe_feature_selection
 
-from backend.Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
-from .models import TrainingModel
+from Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
+from .models import TrainingModel, validate_dataset
 from .utils import arrayfy_strings
 
 
@@ -78,6 +79,9 @@ class TrainingModelSerializer(serializers.ModelSerializer):
         return value
 
 class SetColumnsSerializer(TrainingModelSerializer):
+    feature_columns = serializers.CharField(required=True)
+    target_column = serializers.CharField(required=True)
+
     class Meta:
         model = TrainingModel
         fields = ('feature_columns', 'target_column')
@@ -103,3 +107,57 @@ class SetColumnsSerializer(TrainingModelSerializer):
             raise ValidationError(_(f"Target column '{value}' is not in dataset"))
 
         return value
+
+
+class FeatureSelectionSerializer(SetColumnsSerializer):
+    algorithm = serializers.ChoiceField(choices=[
+        ('pearson', 'Pearson Correlation',),
+        ('rfe', 'Recursive Feature Elimination',)
+    ])
+    target_column = serializers.CharField(required=True)
+
+    class Meta:
+        model = TrainingModel
+        fields = ('algorithm', 'target_column',)
+
+    @lru_cache
+    def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
+        file_data = read_file_data(dataset_path.path)
+        dataframe = produce_dataframe(file_data, columns)
+        return dataframe
+    
+    # def validate_algorithm(self, value):
+    #     if value not in ('rfe', 'pearson'):
+    #         raise ValidationError(_("Field 'algorithm' must be either one of 'rfe' or 'pearson'"))
+        
+    #     return value
+
+    def validate_target_column(self, value):
+        dataframe = self.get_dataframe_from_dataset(self.instance.dataset)
+        if value and value not in dataframe.columns:
+            raise ValidationError(_(f"Target column '{value}' is not in dataset"))
+
+        return value
+    
+    def update(self, instance: TrainingModel, validated_data: Dict[str, str]) -> TrainingModel:
+        FEATURE_SELECTION_ALGORITHMS: Dict[str, Callable] = {
+            'pearson': pearson_feature_selection,
+            'rfe': rfe_feature_selection
+        }
+
+        if (validated_data.get('algorithm'),
+            validated_data.get('target_column'))  == (instance.algorithm,
+            instance.target_column):
+            return instance
+        
+        features = FEATURE_SELECTION_ALGORITHMS[validated_data.get('algorithm')](
+            instance.dataset.path,
+            validated_data.get('target_column')
+        )
+
+        instance.algorithm = self.validated_data.get("algorithm")
+        instance.feature_columns = str(features)
+        instance.target_column = self.validated_data.get('target_column')
+        instance.save(validated=True)
+
+        return instance

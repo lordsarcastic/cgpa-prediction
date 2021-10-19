@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import numpy as np
 from typing import List, Dict
 from pandas.core.frame import DataFrame
-from sklearn.feature_selection import RFE
-from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier as DCF
 
@@ -83,11 +80,12 @@ def normalize_dataframe(feature_cols: List[str], target_col: str, data: DataFram
     data = produce_dataframe(
         data,
         [*feature_cols, target_col]
-    ).fillna('').applymap(lambda value: value.strip())
+    ).fillna('').applymap(lambda value: str(value).strip())
 
     data[target_col] = data[target_col].apply(lambda cell: transform_col(cell, gp_value, 1))
-    for feature in feature_cols:
-        data[feature] = data[feature].apply(lambda cell: transform_col(cell, grade_value, 1))
+    if feature_cols:
+        for feature in feature_cols:
+            data[feature] = data[feature].apply(lambda cell: transform_col(cell, grade_value, 1))
     return data
 
 
