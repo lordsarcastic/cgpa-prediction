@@ -40,16 +40,27 @@ class ListTrainingModelSerializer(serializers.ModelSerializer):
 
 class TrainingModelSerializer(serializers.ModelSerializer):
     dataset = DataFrameField()
-    last_updated = TimesinceField()
-    created = TimesinceField()
 
     class Meta:
         model = TrainingModel
-        exclude = ('id',)
+        fields = '__all__'
+        read_only_fields = (
+            'uuid',
+            'feature_selection_algorithm',
+            'training_algorithm',
+            'target_column',
+            'feature_columns',
+            'trained_model',
+            'created',
+            'last_updated'
+        )
 
     @lru_cache
     def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
-        file_data = read_file_data(dataset_path.path)
+        try:
+            file_data = read_file_data(dataset_path.path)
+        except:
+            raise ValidationError(_("Cannot read dataset. Is it a CSV or Excel file?"))
         dataframe = produce_dataframe(file_data, columns)
         return dataframe
 
@@ -57,6 +68,7 @@ class TrainingModelSerializer(serializers.ModelSerializer):
         extension = value.name.split('.')[-1]
         if extension not in ALLOWED_EXTENSIONS:
             raise serializers.ValidationError(f"Expected file with extension: `{', '.join(ALLOWED_EXTENSIONS.keys())}`, found file type of {extension}")
+        self.get_dataframe_from_dataset(value.path)
         return value
 
 class SetColumnsSerializer(TrainingModelSerializer):
