@@ -1,13 +1,13 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import FeatureSelectionSerializer, ListTrainingModelSerializer, SetColumnsSerializer, TrainingModelSerializer
+from .serializers import FeatureSelectionSerializer, ListTrainingModelSerializer, PredictionSerializer, SetColumnsSerializer, TrainModelSerializer, TrainingModelSerializer
 from .models import TrainingModel
 
 
 from rest_framework import generics
 
 
-class TrainingModelView(generics.ListCreateAPIView):
+class ListOrCreateTrainingModelView(generics.ListCreateAPIView):
     queryset = TrainingModel.objects.all()
 
     def get_serializer_class(self):
@@ -42,14 +42,28 @@ class FeatureSelectionView(generics.UpdateAPIView):
                 "target_column": data.target_column
             }, status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TrainModelView(generics.UpdateAPIView):
+    queryset = TrainingModel
+    serializer_class = TrainModelSerializer
+    lookup_field = 'uuid'
+
+
+class PredictionView(generics.UpdateAPIView):
+    queryset = TrainingModel
+    serializer_class = PredictionSerializer
+    lookup_field = 'uuid'
+
+    def put(self, request, *args, **kwargs):
+        training_model = self.get_object()
+        serializer = self.serializer_class(
+            data=request.data,
+            context={'instance': training_model}
+        )
+
+        if serializer.is_valid():
+            data = serializer.predict()
+            return Response(data, status.HTTP_200_OK)
         
-    # def update(self, request, *args, **kwargs):
-    #     instance = serializer.save()
-
-    #     return super().update(request, *args, **kwargs)
-
-# set feature columns
-# set target column
-# do feature selection
-# train
-# predict
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

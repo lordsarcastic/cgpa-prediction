@@ -1,39 +1,19 @@
+import pickle
 from functools import lru_cache
 from typing import Callable, Dict, List, Union
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.utils.timesince import timesince
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from Learning.feature_selection import pearson_feature_selection, rfe_feature_selection
+from Learning.utils import GRADE_VALUE, produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
+from Learning.classifier import decision_tree_classifier, random_forest_classifier
+from .models import TrainingModel
+from .utils import arrayfy_strings, clean_array, remove_chars_from_string
 
-from Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
-from .models import TrainingModel, validate_dataset
-from .utils import arrayfy_strings
-
-
-def raise_validation_error_for_dataframe(action: Callable, error_msg: str, exception_type: Union[Exception, None] = None, *args):
-    if exception_type:
-        try:
-            result = action(*args)
-        except exception_type:
-            raise ValidationError(error_msg)
-
-    try:
-        result = action(*args)
-    except:
-        raise ValidationError(error_msg)
-    
-    return result
-
-def clean_array(array: List) -> List:
-    """
-    :param array: an array of values of different types
-    :return: an array containing truthy values in `array`
-    """
-
-    return list(filter(bool, array))
 
 class DataFrameField(serializers.FileField):
     def to_representation(self, value):
@@ -99,6 +79,9 @@ class SetColumnsSerializer(TrainingModelSerializer):
             if column and column not in dataframe.columns:
                 raise ValidationError(_(f"{column} is not a column in dataset"))
 
+        if self.validated_data.get('target_columns') in columns:
+            raise ValidationError(_("Target column cannot be a part of feature columns"))
+    
         return value
     
     def validate_target_column(self, value):
@@ -110,27 +93,12 @@ class SetColumnsSerializer(TrainingModelSerializer):
 
 
 class FeatureSelectionSerializer(SetColumnsSerializer):
-    algorithm = serializers.ChoiceField(choices=[
-        ('pearson', 'Pearson Correlation',),
-        ('rfe', 'Recursive Feature Elimination',)
-    ])
+    feature_selection_algorithm = serializers.ChoiceField(choices=TrainingModel.FeatureSelectionAlgorithm.choices)
     target_column = serializers.CharField(required=True)
 
     class Meta:
         model = TrainingModel
-        fields = ('algorithm', 'target_column',)
-
-    @lru_cache
-    def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
-        file_data = read_file_data(dataset_path.path)
-        dataframe = produce_dataframe(file_data, columns)
-        return dataframe
-    
-    # def validate_algorithm(self, value):
-    #     if value not in ('rfe', 'pearson'):
-    #         raise ValidationError(_("Field 'algorithm' must be either one of 'rfe' or 'pearson'"))
-        
-    #     return value
+        fields = ('feature_selection_algorithm', 'target_column',)
 
     def validate_target_column(self, value):
         dataframe = self.get_dataframe_from_dataset(self.instance.dataset)
@@ -138,26 +106,119 @@ class FeatureSelectionSerializer(SetColumnsSerializer):
             raise ValidationError(_(f"Target column '{value}' is not in dataset"))
 
         return value
-    
+
     def update(self, instance: TrainingModel, validated_data: Dict[str, str]) -> TrainingModel:
         FEATURE_SELECTION_ALGORITHMS: Dict[str, Callable] = {
             'pearson': pearson_feature_selection,
             'rfe': rfe_feature_selection
         }
 
-        if (validated_data.get('algorithm'),
-            validated_data.get('target_column'))  == (instance.algorithm,
-            instance.target_column):
-            return instance
+        # if (validated_data.get('feature_selection_algorithm'),
+        #     validated_data.get('target_column'))  == (instance.feature_selection_algorithm,
+        #     instance.target_column):
+        #     return instance
         
-        features = FEATURE_SELECTION_ALGORITHMS[validated_data.get('algorithm')](
+        features = FEATURE_SELECTION_ALGORITHMS[validated_data.get('feature_selection_algorithm')](
             instance.dataset.path,
             validated_data.get('target_column')
         )
+        
+        if (col := validated_data.get('target_column')) in features: 
+            features.remove(col)
 
-        instance.algorithm = self.validated_data.get("algorithm")
+        features.sort()
+        instance.feature_selection_algorithm = self.validated_data.get("feature_selection_algorithm")
         instance.feature_columns = str(features)
         instance.target_column = self.validated_data.get('target_column')
         instance.save(validated=True)
 
         return instance
+
+
+class TrainModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingModel
+        read_only_fields = ('uuid', 'title', )
+        fields = ('uuid', 'title', 'training_algorithm',)
+    
+    def validate_training_algorithm(self, value):
+        if value == '':
+            raise ValidationError(_("Training algorithm must be selected"))
+
+        return value
+
+    def update(self, instance: TrainingModel, validated_data: Dict[str, str]):
+        TRAINING_ALGORITHMS: Dict[str, callable] = {
+            'decision_tree': decision_tree_classifier,
+            'random_forest': random_forest_classifier
+        }
+
+        transformed_feature_columns = remove_chars_from_string(
+            instance.feature_columns,
+            '[]"\'',
+            ' '
+        ).split()
+
+        transformed_feature_columns.sort()
+
+        model_results = TRAINING_ALGORITHMS[
+            validated_data.get('training_algorithm')
+        ](
+            instance.dataset.path,
+            transformed_feature_columns,
+            instance.target_column
+        )
+        
+        model_file_object = pickle.dumps(model_results)
+        instance.training_algorithm = validated_data.get('training_algorithm')
+        instance.trained_model.save(
+            str(instance.uuid),
+            ContentFile(model_file_object)
+        )
+        instance.save(validated=True)
+        return instance
+
+
+class PredictionSerializer(serializers.Serializer):
+    fields = serializers.JSONField()
+
+    def validate_fields(self, value: Dict[str, str]):
+        instance = self.context['instance']
+        
+        if not instance.feature_columns:
+            raise ValidationError(_("Feature columns have not yet been set"))
+
+        if list(value.keys()) != remove_chars_from_string(
+                instance.feature_columns,
+                '[]"\'',
+                ' '
+        ).split():
+            raise ValidationError(_(f"Expected column(s) {instance.feature_columns}, got {list(value.keys())}"))
+        
+        for item in value.values():
+            if item.upper() not in GRADE_VALUE.keys():
+                raise ValidationError(_(f"'{item}' is not one of {tuple(GRADE_VALUE.keys())}"))
+
+        return value
+    
+    def predict(self):
+        instance = self.context['instance']
+        user_input = list(map(
+            lambda value: GRADE_VALUE.get(value.upper()),
+            list(self.validated_data.get('fields').values())
+        ))
+        # user_input
+
+        model_results = open(instance.trained_model.path, 'rb')
+        training_results = pickle.load(model_results)
+        prediction_result = training_results['clf'].predict([user_input])
+        
+        result = {
+            'prediction_result': prediction_result,
+            'fields': self.validated_data.get('fields')
+        }
+
+        return result
+
+
+    

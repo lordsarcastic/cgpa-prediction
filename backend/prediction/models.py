@@ -8,27 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from Learning.utils import produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
-from .utils import arrayfy_strings
-
-
-def clean_array(array: List) -> List:
-    """
-    :param array: an array of values of different types
-    :return: an array containing truthy values in `array`
-    """
-
-    return list(filter(bool, array))
-
-def validate_dataset(value):
-        extension = value.name.split('.')[-1]
-        if extension not in ALLOWED_EXTENSIONS:
-            raise ValidationError(_(f'Expected file with extension: {ALLOWED_EXTENSIONS}, found file type of {extension}'))
-        
-def validate_feature_columns(value):
-    try:
-        arrayfy_strings(value)
-    except:
-        raise ValidationError(_('Columns are not valid as an array. Ensure input is a string of comma-separated values'))
+from .utils import arrayfy_strings, clean_array, validate_dataset
 
 
 class TrainingModel(models.Model):
@@ -47,6 +27,7 @@ class TrainingModel(models.Model):
     training_algorithm = models.CharField(choices=TrainingAlgorithm.choices, max_length=13, blank=True)
     target_column = models.CharField(max_length=50, blank=True)
     feature_columns = models.TextField(blank=True)
+    trained_model = models.FileField(upload_to='models/trained', blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     last_updated = models.DateTimeField(auto_now=True, editable=False)
 
@@ -86,6 +67,8 @@ class TrainingModel(models.Model):
     def save(self, validated=False, *args):
         if not validated:
             value_array = arrayfy_strings(self.feature_columns)
+            if self.target_column in value_array:
+                value_array.remove(self.target_column)
             if value_array:
                 self.feature_columns = ', '.join(value_array)
             if not self.target_column:
