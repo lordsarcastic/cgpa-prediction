@@ -1,14 +1,17 @@
+from typing import List, Dict
+
 from sklearn.ensemble import RandomForestClassifier as RFC
-# from sklearn import metrics
 from sklearn.tree import DecisionTreeClassifier as DCF
 
 from .utils import prepare_dataset
 
 
 
-def decision_tree_classifier(splitted_dataset):
+def decision_tree_classifier(file_data: str, feature_columns: List[str], target_column: str) -> Dict:
     splitted_dataset = prepare_dataset(
-
+        file_data,
+        feature_columns,
+        target_column
     )
     feature_train, feature_test, target_train, target_test = splitted_dataset
     clf = DCF(criterion="entropy", max_depth=3)
@@ -21,9 +24,11 @@ def decision_tree_classifier(splitted_dataset):
     }
     return results
 
-def random_forest_classifier(splitted_dataset):
+def random_forest_classifier(file_data: str, feature_columns: List[str], target_column: str) -> Dict:
     splitted_dataset = prepare_dataset(
-
+        file_data,
+        feature_columns,
+        target_column
     )
     feature_train, feature_test, target_train, target_test = splitted_dataset
     clf = RFC(n_estimators=100)
