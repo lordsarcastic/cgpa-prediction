@@ -8,6 +8,7 @@ from django.utils.timesince import timesince
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from sklearn import metrics
 from Learning.feature_selection import pearson_feature_selection, rfe_feature_selection
 from Learning.utils import GRADE_VALUE, produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
 from Learning.classifier import decision_tree_classifier, random_forest_classifier
@@ -155,7 +156,7 @@ class TrainModelSerializer(serializers.ModelSerializer):
 
         transformed_feature_columns = remove_chars_from_string(
             instance.feature_columns,
-            '[]"\'',
+            '[],"\'',
             ' '
         ).split()
 
@@ -170,13 +171,17 @@ class TrainModelSerializer(serializers.ModelSerializer):
         )
         
         model_file_object = pickle.dumps(model_results)
+        accuracy = round(metrics.accuracy_score(
+            model_results['target_prediction'],
+            model_results['target_test']
+        ) * 100, 1)
         instance.training_algorithm = validated_data.get('training_algorithm')
         instance.trained_model.save(
             str(instance.uuid),
             ContentFile(model_file_object)
         )
         instance.save(validated=True)
-        return instance
+        return instance, accuracy
 
 
 class PredictionSerializer(serializers.Serializer):

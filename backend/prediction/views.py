@@ -49,6 +49,19 @@ class TrainModelView(generics.UpdateAPIView):
     serializer_class = TrainModelSerializer
     lookup_field = 'uuid'
 
+    def put(self, request, *args, **kwargs):
+        training_model = self.get_object()
+        serializer = self.serializer_class(training_model, data=request.data)
+        if serializer.is_valid():
+            instance, training_results = serializer.save()
+            return Response({
+                "uuid": instance.uuid,
+                "title": instance.title,
+                "training_algorithm": instance.training_algorithm,
+                "accuracy": f"{training_results}%"
+            }, status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PredictionView(generics.UpdateAPIView):
     queryset = TrainingModel
