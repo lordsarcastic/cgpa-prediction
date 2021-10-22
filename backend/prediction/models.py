@@ -64,7 +64,7 @@ class TrainingModel(models.Model):
             if column and column not in dataframe.columns:
                 raise ValidationError(_(f"{column} is not a column in dataset"))
         
-    def save(self, validated=False, *args):
+    def save(self, validated=False, *args, **kwargs):
         if not validated:
             value_array = arrayfy_strings(self.feature_columns)
             if self.target_column in value_array:
@@ -76,7 +76,7 @@ class TrainingModel(models.Model):
             if not value_array:
                 self.feature_columns = str()
 
-        return super().save(*args)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("prediction:training-detail", kwargs={"uuid": self.uuid})
