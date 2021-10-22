@@ -1,12 +1,24 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { ListingPage } from './pages/DatasetList';
 
 function App() {
   return (
-    <div className="flex justify-center items-center gap-y-4 h-screen bg-gray-100">
-      <img src={logo} className="h-16 w-auto" alt="logo" />
-      <h1 className="text-5xl">React Starter Template With Typescript</h1>
-    </div>
+    <BrowserRouter>
+      <header>
+
+      </header>
+      <main className="flex justify-center items-center py-16 px-16 bg-blue-50">
+        <Switch>
+          <Route exact={ListingPage.exact} path={ListingPage.route}>
+            <ListingPage.Component />
+          </Route>
+        </Switch>
+      </main>
+      <footer>
+
+      </footer>
+    </BrowserRouter>
   );
 }
 
