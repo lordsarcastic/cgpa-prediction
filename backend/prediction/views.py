@@ -39,6 +39,7 @@ class ListOrCreateTrainingModelView(generics.ListCreateAPIView):
             created: When the dataset was created
             last_updated: When last an operation was performed on the dataset
     """
+    
     queryset = TrainingModel.objects.all()
 
     def get_serializer_class(self):
@@ -127,7 +128,7 @@ class TrainModelView(generics.UpdateAPIView):
                 "uuid": instance.uuid,
                 "title": instance.title,
                 "training_algorithm": instance.training_algorithm,
-                "accuracy": f"{training_results}%"
+                "accuracy": training_results
             }, status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
