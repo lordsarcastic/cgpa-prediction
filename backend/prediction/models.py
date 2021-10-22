@@ -15,7 +15,7 @@ class TrainingModel(models.Model):
     class FeatureSelectionAlgorithm(models.TextChoices):
         rfe = "rfe", "Recursive Feature Elimination"
         pearson = "pearson", "Pearson Correlation"
-    
+
     class TrainingAlgorithm(models.TextChoices):
         dt = 'decision_tree', "Decision Tree Classifier"
         rf = 'random_forest', "Random Forest"
