@@ -1,6 +1,6 @@
 import pickle
 from functools import lru_cache
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -40,6 +40,8 @@ class ListTrainingModelSerializer(serializers.ModelSerializer):
 
 class TrainingModelSerializer(serializers.ModelSerializer):
     dataset = DataFrameField()
+    last_updated = TimesinceField()
+    created = TimesinceField()
 
     class Meta:
         model = TrainingModel
@@ -65,10 +67,15 @@ class TrainingModelSerializer(serializers.ModelSerializer):
         return dataframe
 
     def validate_dataset(self, value):
+        """
+        We're not validating the file mime type because Django
+        does not give us a file type with which we can work with
+        by referencing a path. Perhaps later, we'll find a way to
+        push raw bytes to check things out
+        """
         extension = value.name.split('.')[-1]
         if extension not in ALLOWED_EXTENSIONS:
             raise serializers.ValidationError(f"Expected file with extension: `{', '.join(ALLOWED_EXTENSIONS.keys())}`, found file type of {extension}")
-        self.get_dataframe_from_dataset(value.path)
         return value
 
 class SetColumnsSerializer(TrainingModelSerializer):
@@ -126,11 +133,6 @@ class FeatureSelectionSerializer(SetColumnsSerializer):
             'rfe': rfe_feature_selection
         }
 
-        # if (validated_data.get('feature_selection_algorithm'),
-        #     validated_data.get('target_column'))  == (instance.feature_selection_algorithm,
-        #     instance.target_column):
-        #     return instance
-        
         features = FEATURE_SELECTION_ALGORITHMS[validated_data.get('feature_selection_algorithm')](
             instance.dataset.path,
             validated_data.get('target_column')
@@ -181,7 +183,7 @@ class TrainModelSerializer(serializers.ModelSerializer):
             transformed_feature_columns,
             instance.target_column
         )
-        
+
         model_file_object = pickle.dumps(model_results)
         accuracy = round(metrics.accuracy_score(
             model_results['target_prediction'],
@@ -201,9 +203,12 @@ class PredictionSerializer(serializers.Serializer):
 
     def validate_fields(self, value: Dict[str, str]):
         instance = self.context['instance']
-        
+
         if not instance.feature_columns:
             raise ValidationError(_("Feature columns have not yet been set"))
+        
+        if not instance.trained_model:
+            raise ValidationError(_("Model has not been trained yet"))
 
         if list(value.keys()) != remove_chars_from_string(
                 instance.feature_columns,
@@ -224,7 +229,6 @@ class PredictionSerializer(serializers.Serializer):
             lambda value: GRADE_VALUE.get(value.upper()),
             list(self.validated_data.get('fields').values())
         ))
-        # user_input
 
         model_results = open(instance.trained_model.path, 'rb')
         training_results = pickle.load(model_results)
@@ -236,6 +240,3 @@ class PredictionSerializer(serializers.Serializer):
         }
 
         return result
-
-
-    
