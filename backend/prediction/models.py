@@ -64,17 +64,12 @@ class TrainingModel(models.Model):
             if column and column not in dataframe.columns:
                 raise ValidationError(_(f"{column} is not a column in dataset"))
         
-    def save(self, validated=False, *args, **kwargs):
-        if not validated:
-            value_array = arrayfy_strings(self.feature_columns)
-            if self.target_column in value_array:
-                value_array.remove(self.target_column)
-            if value_array:
-                self.feature_columns = ', '.join(value_array)
-            if not self.target_column:
-                self.target_column = str()
-            if not value_array:
-                self.feature_columns = str()
+    def save(self, *args, **kwargs):
+        value_array = arrayfy_strings(self.feature_columns)
+        if self.target_column in value_array:
+            value_array.remove(self.target_column)
+
+        self.feature_columns = ', '.join(value_array)
 
         return super().save(*args, **kwargs)
 

@@ -143,9 +143,9 @@ class FeatureSelectionSerializer(SetColumnsSerializer):
 
         features.sort()
         instance.feature_selection_algorithm = self.validated_data.get("feature_selection_algorithm")
-        instance.feature_columns = str(features)
+        instance.feature_columns = ', '.join(features)
         instance.target_column = self.validated_data.get('target_column')
-        instance.save(validated=True)
+        instance.save()
 
         return instance
 
@@ -170,7 +170,7 @@ class TrainModelSerializer(serializers.ModelSerializer):
 
         transformed_feature_columns = remove_chars_from_string(
             instance.feature_columns,
-            '[],"\'',
+            ',',
             ' '
         ).split()
 
@@ -194,7 +194,7 @@ class TrainModelSerializer(serializers.ModelSerializer):
             str(instance.uuid),
             ContentFile(model_file_object)
         )
-        instance.save(validated=True)
+        instance.save()
         return instance, accuracy
 
 
@@ -212,7 +212,7 @@ class PredictionSerializer(serializers.Serializer):
 
         if list(value.keys()) != remove_chars_from_string(
                 instance.feature_columns,
-                '[]"\'',
+                ',',
                 ' '
         ).split():
             raise ValidationError(_(f"Expected column(s) {instance.feature_columns}, got {list(value.keys())}"))
