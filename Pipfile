@@ -11,6 +11,9 @@ pydotplus = "*"
 django = "*"
 django-cors-headers = "*"
 djangorestframework = "*"
+django-heroku = "*"
+psycopg2-binary = "*"
+gunicorn = "*"
 
 [dev-packages]
 
