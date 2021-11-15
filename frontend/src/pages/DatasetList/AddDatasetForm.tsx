@@ -13,15 +13,6 @@ const schema = Yup.object({
     title: Yup.string().required("Dataset must have a title"),
     dataset: Yup.mixed()
         .required()
-        // .test('fileType', "Unsupported file format", value => {
-        //     console.log({value})
-        //     if (value) {
-        //         const tokens = value.split('.')
-        //         return Constant.supportedFormats.includes(tokens[tokens.length - 1])
-        //     }
-        //     return value;
-        // })
-        // .test("fileSize", "File size must be less than 4 MB", value => value && value.size <= 4 * 1024 * 1024)
 })
 
 export const AddDatasetForm = () => {
@@ -42,7 +33,7 @@ export const AddDatasetForm = () => {
     }
 
     const validateFile = () => {
-        const invalid = file!.size  > 4 * 1024 * 1024 
+        const invalid = file!.size  > Constant.fileSize * 1024 * 1024 
         invalid && formik.setFieldError('dataset', "File must be at most 4 MB in size")
         return !invalid
     }
