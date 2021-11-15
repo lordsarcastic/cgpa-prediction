@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ColumnsModel, FeatureSelectionAlgorithmStrings, ListTrainingModel, PredictionModel, TrainedModel, TrainingAlgorithmStrings } from "./types";
+import { ColumnsModel, CreateTrainingModel, FeatureSelectionAlgorithmStrings, ListTrainingModel, PredictionModel, TrainedModel, TrainingAlgorithmStrings } from "./types";
 
 export const client = axios.create({
     baseURL: 'http://localhost:8000/prediction'
@@ -7,6 +7,7 @@ export const client = axios.create({
 
 const ENDPOINTS = {
     listDatasets: '/',
+    createDataset: '/',
     datasetDetail: '/?uuid/',
     setColumns: '/?uuid/set-columns/',
     selectFeatures: '/?uuid/select-features/',
@@ -14,8 +15,22 @@ const ENDPOINTS = {
     predict: '/?uuid/predict/'
 }
 
+
 const replaceUUID = (endpoint: string, uuid: string): string => {
     return endpoint.replace('?uuid', uuid);
+}
+
+export const createDataset = async (dataset: CreateTrainingModel): Promise<ListTrainingModel> => {
+    console.log("Seter")
+    const form = new FormData();
+    form.append("title", dataset.title)
+    form.append("dataset", dataset.dataset)
+    const response = await client.post(
+        ENDPOINTS.createDataset,
+        form
+    )
+    console.log(response.statusText)
+    return response.data;
 }
 
 export const getListOfDataset = async (): Promise<ListTrainingModel[]> => {

@@ -27,7 +27,7 @@ export type FeatureSelectionAlgorithmStrings = keyof typeof FeatureSelectionAlgo
 export type TrainingAlgorithmStrings = keyof typeof TrainingAlgorithm
 
 export type CreateTrainingModel = {
-    dataset: string,
+    dataset: File,
     title: string
 }
 
