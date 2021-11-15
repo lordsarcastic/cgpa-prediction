@@ -18,7 +18,10 @@ from .utils import arrayfy_strings, clean_array, remove_chars_from_string
 
 class DataFrameField(serializers.FileField):
     def to_representation(self, value):
-        file_data = read_file_data(value.path)
+        try:
+            file_data = read_file_data(value.path)
+        except:
+            raise ValidationError(_("Cannot read dataset. Is it a CSV or Excel file?"))
         dataframe = produce_dataframe(file_data)
         return dataframe.head().to_dict()
 
