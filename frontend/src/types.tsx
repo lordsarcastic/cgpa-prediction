@@ -45,6 +45,9 @@ export type ListTrainingModel = CreateTrainingModel & ColumnsModel & {
     last_updated: string
 }
 
+export type ListTrainingModelWithHeader = ListTrainingModel & {
+    dataset: object
+}
 
 export type FeatureSelectionModel = {
     feature_selection_algorithm: FeatureSelectionAlgorithmStrings,

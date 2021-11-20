@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactNode, useState } from 'react';
+import React, { FunctionComponent, ReactNode, useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa'
 
 export type ModalChildType = {
@@ -13,6 +13,7 @@ const Modal: FunctionComponent<ModalChildType> = ({ children, onClose }) => {
         setVisible(false)
         onClose()
     }
+
     const modalClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation();
     }
@@ -24,6 +25,26 @@ const Modal: FunctionComponent<ModalChildType> = ({ children, onClose }) => {
                 {children}
             </div>
         </div>}
+        </>
+    )
+}
+
+export const FooterModal = ({message}: {message:string}) => {
+    const [display, setDisplay] = useState<boolean>(true);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setDisplay(false)
+        }, 5000)
+    })
+
+    return (
+        <>
+        {display &&
+            <div className="absolute bottom-0 w-full py-4 bg-white shadow-lg px-8">
+                {message}
+            </div>
+        }
         </>
     )
 }

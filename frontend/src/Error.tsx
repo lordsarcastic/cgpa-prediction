@@ -1,10 +1,14 @@
 import { FunctionComponent } from "react"
 
-export const Error: FunctionComponent<{code: number | undefined}> = ({ code }) => {
+export type ErrorProps = {
+    code?: number,
+    message?: string
+}
+export const Error: FunctionComponent<ErrorProps> = ({ code, message }) => {
     return (
-        <div className="flex flex-col justify-center items-center text-indigo-700 h-screen w-full">
+        <div className="absolute flex flex-col justify-center items-center text-indigo-700 h-screen w-full">
             <h1 className="text-4xl">Error {code || ''}</h1>
-            <p>Something went wrong</p>
+            <p>{message || 'Something went wrong'}</p>
         </div>
     )
 }

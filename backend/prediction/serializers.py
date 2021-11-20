@@ -102,7 +102,8 @@ class SetColumnsSerializer(TrainingModelSerializer):
             if column and column not in dataframe.columns:
                 raise ValidationError(_(f"{column} is not a column in dataset"))
 
-        if self.validated_data.get('target_columns') in columns:
+        
+        if self.initial_data.get('target_columns') in columns:
             raise ValidationError(_("Target column cannot be a part of feature columns"))
     
         return value

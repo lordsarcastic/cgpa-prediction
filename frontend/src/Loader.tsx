@@ -1,7 +1,7 @@
-import loading from './images/loading.svg'
+import loader from './images/loading.svg'
 
-export default function Loader() {
+export default function Loader(loading: boolean) {
     return (
-        <img src={loading} className="h-24" alt="loading" />
+        <>{!loading && <img src={loader} className="h-24" alt="loading" />}</>
     )
 }
