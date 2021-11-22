@@ -30,11 +30,11 @@ const Column: FunctionComponent<ColumnProps> = ({ name, data }) => {
     const [selected, setSelected] = useState<boolean>(false);
 
     const handleSetSelected = () => {
-        !(name == targetColumn) && setSelected(!selected)
+        !(name === targetColumn) && setSelected(!selected)
     }
 
     useEffect(() => {
-        if (!(name == targetColumn)) {
+        if (!(name === targetColumn)) {
             const columns = new Set([...featureColumns])
             selected
                 ? columns.add(name)

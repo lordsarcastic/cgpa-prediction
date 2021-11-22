@@ -1,16 +1,13 @@
 import { useFormik } from "formik";
-import { useContext, useEffect, useState } from "react"
-import { useParams } from "react-router"
-import { useAxios } from "use-axios-client"
+import { useContext, useEffect, useMemo, useState } from "react"
 import * as Yup from "yup";
-import { ErrorContext } from "../../App"
-import Loader from "../../Loader"
-import { FooterModal } from "../../Modal"
-import { client, ENDPOINTS, replaceUUID, setColumns } from "../../requests"
-import { Tab } from "../../Tab";
-import { ListTrainingModelWithHeader } from "../../types"
-import { ListingTable } from "../DatasetList"
-import { Table, TableContext } from "../TableSelection"
+import { DetailAxiosContext } from ".";
+import { ErrorContext } from "../../../App"
+import Loader from "../../../Loader"
+import { FooterModal } from "../../../Modal"
+import { setColumns } from "../../../requests";
+import { Tab } from "../../../Tab";
+import { Table, TableContext } from "../../TableSelection"
 
 const Header = () => {
     return (
@@ -31,7 +28,6 @@ const Main = () => {
     const [restColumns, setRestColumns] = useState<Set<string>>(new Set());
     const [targetColumn, setTargetColumn] = useState<string | undefined>();
     const [success, setSuccess] = useState<boolean>(false);
-    const { uuid } = useParams<{uuid: string}>();
 
     const formik = useFormik({
         initialValues: {
@@ -40,11 +36,11 @@ const Main = () => {
         },
         onSubmit: (values, { setSubmitting }) => {
             setSubmitting(true)
-            console.log(values)
             data && setColumns(data.uuid, values.feature_columns, values.target_column)
             .then(() => {
                 setSuccess(true)
                 setTimeout(() => setSuccess(false), 5000)
+                refetch()
             })
             .catch(error => console.log(error))
             .finally(() => setSubmitting(false))
@@ -52,12 +48,8 @@ const Main = () => {
         validationSchema: schema
     })
 
-    const uuidEndpoint = replaceUUID(ENDPOINTS.datasetDetail, uuid);
 
-    const { data, error, loading } = useAxios<ListTrainingModelWithHeader>({
-        axiosInstance: client,
-        url: uuidEndpoint
-    })
+    const { data, error, loading, refetch } = useContext(DetailAxiosContext)
 
     const handleSetTargetColumn = (col: string) => {
         setTargetColumn(col)
@@ -76,15 +68,20 @@ const Main = () => {
         error && setError({message: error?.message})
     }, [error, setError])
 
-    useEffect(() => console.log(featureColumns), [featureColumns, setFeatureColumns])
+    const value = useMemo(() => ({
+        featureColumns,
+        setTargetColumn,
+        targetColumn,
+        setFeatureColumns
+    }), [featureColumns, setFeatureColumns, targetColumn, setTargetColumn])
 
     return (
         <form onSubmit={formik.handleSubmit}>
-            <TableContext.Provider value={{featureColumns, setFeatureColumns, targetColumn, setTargetColumn}}>
+            <TableContext.Provider value={value}>
                 <Loader {...loading} />
                 {data && <>
                     <p>Select feature columns by clicking on headers or allow algorithm to select feature and target column for you</p>
-                    <ListingTable dataset={[data]} />
+                    
                     
                     <Table data={data.dataset} />
                     <input id="feature_columns" className="hidden" {...formik.getFieldProps('feature_columns')} />
@@ -94,7 +91,7 @@ const Main = () => {
                     {[...restColumns].map((col) => (
                         <span
                             key={col}
-                            className={`py-0.5 px-3 ${col == targetColumn ? 'bg-green-500': 'bg-purple-500'}`}
+                            className={`py-0.5 px-3 ${col === targetColumn ? 'bg-green-500': 'bg-purple-500'}`}
                             onClick={() => handleSetTargetColumn(col)}
                         >{col}</span>
                     ))}
@@ -110,8 +107,8 @@ const Main = () => {
     )
 }
 
-export const SetColumnsTab: Tab = {
+export const ManualTab: Tab = {
     Header: Header,
     Component: Main,
-    trigger: 'sc'
+    trigger: 'ms'
 }

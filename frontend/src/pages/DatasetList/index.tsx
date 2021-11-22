@@ -1,4 +1,4 @@
-import { FunctionComponent, useContext, useEffect, useState } from 'react'
+import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react'
 import { FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { ErrorContext } from '../../App';
@@ -59,16 +59,19 @@ export const Listing = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [showForm, setShowForm] = useState(false)
 
-    const loadDataset = () => {
-        setLoading(true);
+    const loadDataset = useCallback(
+        () => {
+            setLoading(true);
 
-        getListOfDataset()
-            .then((data) => setDataset(data))
-            .catch((err) => {
-                setError(err)
-            })
-            .finally(() => setLoading(false))
-    }
+            getListOfDataset()
+                .then((data) => setDataset(data))
+                .catch((err) => {
+                    setError(err)
+                })
+                .finally(() => setLoading(false))
+        },
+        [setError],
+    )
     
     const handleAddDataSet = () => {
         setShowForm(true)
@@ -76,7 +79,7 @@ export const Listing = () => {
 
     useEffect(() => {
         loadDataset()
-    }, [showForm])
+    }, [showForm, loadDataset])
 
     return (
         <div className="rounded-lg shadow-lg p-4 bg-white w-full">
