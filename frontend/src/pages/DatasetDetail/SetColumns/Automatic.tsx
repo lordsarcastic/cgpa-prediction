@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import { createContext, Dispatch, FunctionComponent, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router";
 import * as Yup from "yup";
-import { DetailAxiosContext } from ".";
+import { DetailAxiosContext } from "..";
 import { ErrorContext } from "../../../App";
 import Loader from "../../../Loader";
 import { FooterModal } from "../../../Modal";
@@ -101,7 +101,7 @@ export const Automatic: FunctionComponent = () => {
 
     useEffect(() => {
         formik.setFieldValue('targetColumn', targetColumn)
-    }, [targetColumn, formik])
+    }, [targetColumn])
 
     const value = useMemo(() => ({
         setTargetColumn,

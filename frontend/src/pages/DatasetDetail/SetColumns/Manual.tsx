@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import { useContext, useEffect, useMemo, useState } from "react"
 import * as Yup from "yup";
-import { DetailAxiosContext } from ".";
+import { DetailAxiosContext } from "..";
 import { ErrorContext } from "../../../App"
 import Loader from "../../../Loader"
 import { FooterModal } from "../../../Modal"
