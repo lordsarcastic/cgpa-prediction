@@ -19,8 +19,6 @@ const Header = () => {
     )
 }
 
-
-
 const Main = () => {
     return (
         <TabWrapper tabs={tabs} />

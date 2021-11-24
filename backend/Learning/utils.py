@@ -24,6 +24,14 @@ GP_VALUE = {
     'FIRST CLASS': 5
 }
 
+TRANSPOSED_GP_VALUE = {
+    '1': 'PASS',
+    '2': 'THIRD CLASS',
+    '3': 'SECOND CLASS LOWER',
+    "4": 'SECOND CLASS UPPER',
+    "5": 'FIRST CLASS'
+}
+
 FEATURE_COLUMNS = [
     'MATNO',
     'MTH101',

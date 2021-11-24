@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from sklearn import metrics
 from Learning.feature_selection import pearson_feature_selection, rfe_feature_selection
-from Learning.utils import GRADE_VALUE, produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
+from Learning.utils import GRADE_VALUE, TRANSPOSED_GP_VALUE, produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
 from Learning.classifier import decision_tree_classifier, random_forest_classifier
 from .models import TrainingModel
 from .utils import arrayfy_strings, clean_array, remove_chars_from_string
@@ -239,7 +239,7 @@ class PredictionSerializer(serializers.Serializer):
         prediction_result = training_results['clf'].predict([user_input])
         
         result = {
-            'prediction_result': prediction_result,
+            'prediction_result': TRANSPOSED_GP_VALUE[str(prediction_result[0])],
             'fields': self.validated_data.get('fields')
         }
 

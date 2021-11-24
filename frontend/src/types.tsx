@@ -67,5 +67,5 @@ export type TrainedModel = {
 
 export type PredictionModel = {
     fields: object,
-    prediction_result: number
+    prediction_result: string
 }
