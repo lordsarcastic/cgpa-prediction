@@ -32,7 +32,7 @@ function App() {
         <header>
 
         </header>
-        <main className="py-16 px-16 bg-gray-800 relative">
+        <main className="py-16 px-16 relative">
           {error && <Error {...error} />}
           <Switch>
             <Route exact={DatasetDetail.exact} path={DatasetDetail.route}>

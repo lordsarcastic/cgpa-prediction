@@ -15,4 +15,7 @@
         margin-inline-start: -1rem;
         margin-inline-end: 1rem;
     }
+    body {
+        @apply bg-gray-800
+    }
 }
