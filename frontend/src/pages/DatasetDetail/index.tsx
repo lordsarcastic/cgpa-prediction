@@ -43,10 +43,11 @@ const Main = () => {
             <Loader {...loading} />
             {data && <div className="flex flex-col gap-y-10 text-white">
                 <h1 className="text-5xl font-bold">{data.title} Dataset</h1>
-                <ListingTable dataset={[data]} />
+                <div className="overflow-x-auto">
+                    <ListingTable dataset={[data]} />
+                </div>
                 <TabWrapper tabs={tabs} />
-            </div>
-            }
+            </div>}
         </DetailAxiosContext.Provider>
     )
 }

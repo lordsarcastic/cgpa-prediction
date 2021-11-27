@@ -28,30 +28,7 @@ export type useRequestProps<S, T> = {
     params: object
 }
 
-// export type useRequestResponse<S> = {
-//     error?: number,
-//     isLoading: boolean,
-//     data: (params:any): Promise<S>
-// }
-
-// export const useRequest = <T extends {}, S extends {} > (data: useRequestProps<T, S>): useRequestResponse<T> => {
-//     const [error, setError] = useState<number | undefined>(undefined)
-//     const [isLoading, setIsLoading] = useState<boolean>(true);
-//     const [state, setState] = useState<any>(undefined)
-
-//     useEffect(() => {
-//         setIsLoading(true)
-//         data.request({...data.params})
-//     })
-//     return {
-//         error: 1,
-//         isLoading: false,
-//         data: getDatasetDetail
-//     }
-// }
-
 export const createDataset = async (dataset: CreateTrainingModel): Promise<ListTrainingModel> => {
-    console.log("Seter")
     const form = new FormData();
     form.append("title", dataset.title)
     form.append("dataset", dataset.dataset)
@@ -59,7 +36,6 @@ export const createDataset = async (dataset: CreateTrainingModel): Promise<ListT
         ENDPOINTS.createDataset,
         form
     )
-    console.log(response.statusText)
     return response.data;
 }
 

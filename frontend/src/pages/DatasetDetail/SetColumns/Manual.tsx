@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { DetailAxiosContext } from "..";
 import { ErrorContext } from "../../../App"
 import Loader from "../../../Loader"
-import { FooterModal } from "../../../Modal"
+import Modal from "../../../Modal"
 import { setColumns } from "../../../requests";
 import { Tab } from "../../../Tab";
 import { Table, TableContext } from "../../TableSelection"
@@ -83,7 +83,7 @@ const Main = () => {
                 {data && <div className="flex flex-col gap-y-10">
                     <div className="flex flex-col gap-y-4">
                         <h2 className="text-2xl font-bold">Click on a course title to select course column <FaArrowRight className="text-white inline text-xl" /></h2>
-                        <div className="flex flex-col gap-y-4">
+                        <div className="flex flex-col gap-y-4 overflow-x-auto">
                             <Table data={data.dataset} />
                             {formik.touched.feature_columns && formik.errors.feature_columns ? <p className="text-red-300 font-bold text-xl">{formik.errors.feature_columns}  <FaTimes className="inline" /></p> : null}
                             <input id="feature_columns" className="hidden" {...formik.getFieldProps('feature_columns')} />
@@ -112,7 +112,10 @@ const Main = () => {
                 </div>}
 
             </TableContext.Provider>
-            {success && <FooterModal message="Columns have been set, you can now train the model" />}
+            {success && <Modal onClose={() => setSuccess(false)}>
+                <h1 className="text-2xl font-bold text-green-300 mb-6 px-6">Prediction complete!</h1>
+                <p className="px-6">Columns have been set, you can now train the model</p>
+            </Modal>}
         </form>
     )
 }

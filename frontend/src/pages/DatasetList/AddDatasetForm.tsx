@@ -22,7 +22,6 @@ export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<
         e.preventDefault()
         const reader = new FileReader()
         const uploadedFile = e.target!.files![0];
-        console.log({"uploadedfile": uploadedFile})
         if (uploadedFile) {
             reader.onloadend = () => {
                 setFile(uploadedFile);
@@ -47,7 +46,6 @@ export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<
             setSubmitting(true)
             validateFile() && createDataset({title: values.title, dataset:file!})
                 .then((data) => {
-                    console.log(data)
                     showForm(false)
                 })
                 .catch(err => {

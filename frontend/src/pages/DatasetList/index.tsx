@@ -89,7 +89,9 @@ export const Listing = () => {
                     <FaPlus />
                 </button>
             </div>
-            {!error && <ListingTable dataset={dataset} />}
+            <div className="overflow-x-auto">
+                {!error && <ListingTable dataset={dataset} />}
+            </div>
             <Loader {...loading} />
         </div>
     )

@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { DetailAxiosContext } from "..";
 import { ErrorContext } from "../../../App";
 import Loader from "../../../Loader";
-import { FooterModal } from "../../../Modal";
+import Modal from "../../../Modal";
 import { performFeatureSelection } from "../../../requests";
 import { Tab } from "../../../Tab";
 import { FeatureSelectionAlgorithmStrings } from "../../../types";
@@ -32,13 +32,13 @@ export const Table: FunctionComponent<{data: { [key: string]: {[key: string]: st
             <thead className="bg-gray-700 font-bold text-xl">
                 <tr>
                     {Object.keys(data).map((name, index) => (
-                        <td onClick={() => setTargetColumn(name)} className={`p-3 cursor-pointer ${targetColumn === name && 'bg-blue-700 '} ${index !== 1 && 'text-left'}`}>{name}</td>
+                        <td key={name} onClick={() => setTargetColumn(name)} className={`p-3 cursor-pointer ${targetColumn === name && 'bg-blue-700 '} ${index !== 1 && 'text-left'}`}>{name}</td>
                     ))}
                 </tr>
             </thead>
             <tbody>
                 {["0", "1", "2", "3", "4"].map((index) => (
-                    <tr  className="w-full bg-gray-700">
+                    <tr  className="w-full bg-gray-700" key={index}>
                         {Object.keys(data).map((title) => (
                             <td
                                 key={title}
@@ -90,7 +90,6 @@ export const Automatic: FunctionComponent = () => {
 
     const handleSubmission = (algorithm: FeatureSelectionAlgorithmStrings) => {
         formik.setFieldValue('algorithm', algorithm)
-        console.log(formik.errors)
         ref.current &&  ref.current.click()
     }
 
@@ -114,7 +113,7 @@ export const Automatic: FunctionComponent = () => {
             <form onSubmit={formik.handleSubmit}>
                 <div className="flex flex-col gap-y-4">
                     <h2 className="text-2xl font-bold">Click on a course title to select a grade column <FaArrowRight className="text-white inline text-xl" /></h2>
-                    <div className="flex flex-col gap-y-4">
+                    <div className="flex flex-col gap-y-4 overflow-x-auto">
                         <input id="targetColumn" className="hidden" {...formik.getFieldProps('targetColumn')} />
                         <Table data={data.dataset} />
                         {formik.errors.targetColumn ? <p className="text-red-300 font-bold text-xl">{formik.errors.targetColumn}</p> : null}
@@ -138,7 +137,10 @@ export const Automatic: FunctionComponent = () => {
                 <input id="algorithm" className="hidden" {...formik.getFieldProps('algorithm')} />
                 <button type="submit" className="hidden" ref={ref}>Submit</button>
             </form>
-            {success && <FooterModal message="Columns have been set, you can now train the model" />}
+            {success && <Modal onClose={() => setSuccess(false)}>
+                <h1 className="text-2xl font-bold text-green-300 mb-6 px-6">Prediction complete!</h1>
+                <p className="px-6">Columns have been set, you can now train the model</p>
+            </Modal>}
         </TableContext.Provider>}
         </>
     )

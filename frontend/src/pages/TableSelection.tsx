@@ -1,4 +1,4 @@
-import { createContext, Dispatch, FunctionComponent, SetStateAction, useContext, useEffect, useState } from "react"
+import { createContext, Dispatch, FunctionComponent, SetStateAction, useContext, useEffect } from "react"
 
 export type HighLightedColumnProps = {
     featureColumns: Set<string>,
@@ -23,22 +23,18 @@ export const Table: FunctionComponent<{data: { [key: string]: {[key: string]: st
         }
     }
 
-    useEffect(() => {
-        console.log(featureColumns)
-    }, [featureColumns])
-
     return (
         <table className="table border-separate space-y-6 text-sm w-full text-white">
             <thead className="bg-gray-700 font-bold text-xl">
                 <tr>
                     {Object.keys(data).map((name, index) => (
-                        <td onClick={() => handleSetSelected(name)} className={`p-3 cursor-pointer ${featureColumns.has(name) && 'bg-blue-700 '} ${index !== 1 && 'text-left'}`}>{name}</td>
+                        <td key={name} onClick={() => handleSetSelected(name)} className={`p-3 cursor-pointer ${featureColumns.has(name) && 'bg-blue-700 '} ${index !== 1 && 'text-left'}`}>{name}</td>
                     ))}
                 </tr>
             </thead>
             <tbody>
                 {["0", "1", "2", "3", "4"].map((index) => (
-                    <tr  className="w-full bg-gray-700">
+                    <tr key={index} className="w-full bg-gray-700">
                         {Object.keys(data).map((title) => (
                             <td
                                 key={title}
