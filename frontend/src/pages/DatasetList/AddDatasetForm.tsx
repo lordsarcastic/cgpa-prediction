@@ -2,7 +2,7 @@ import * as Yup from "yup"
 import { Constant } from "./data"
 import { createDataset } from "../../requests"
 import { useFormik } from "formik"
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 
 export type AddDatasetProps = {
     title: string,
@@ -12,10 +12,10 @@ export type AddDatasetProps = {
 const schema = Yup.object({
     title: Yup.string().required("Dataset must have a title"),
     dataset: Yup.mixed()
-        .required()
+        .required("Dataset is a required field")
 })
 
-export const AddDatasetForm = () => {
+export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<boolean>>}) => {
     const [file, setFile] = useState<File | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +48,7 @@ export const AddDatasetForm = () => {
             validateFile() && createDataset({title: values.title, dataset:file!})
                 .then((data) => {
                     console.log(data)
+                    showForm(false)
                 })
                 .catch(err => {
                     console.log(err)
@@ -58,23 +59,29 @@ export const AddDatasetForm = () => {
     })
 
     return (
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-y-10">
             {formik.isSubmitting ? <p>Submitting, please wait</p> : null}
             <div className="flex flex-col gap-y-6">
-                <input id="title" className="py-2 px-4 rounded-lg outline-none border focus:border-purple-400 bg-purple-200" {...formik.getFieldProps('title')} />
-                {formik.touched.title && formik.errors.title ? (<p className="text-red-500">{formik.errors.title}</p>) : null}
-
-                <input
-                    id="dataset"
-                    type="file"
-                    accept="text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                    {...formik.getFieldProps('dataset')}
-                    onChange={(e) => handleFileChange(e)}
-                 />
-                {formik.touched.dataset && formik.errors.dataset ? (<p className="text-red-500">{formik.errors.dataset}</p>) : null}
+                <div className="flex flex-col gap-y-2">
+                    <label className="text-xl font-bold block" htmlFor="title">Title Of Dataset</label>
+                    <input id="title" className={`py-2 px-4 rounded outline-none ${formik.touched.title && formik.errors.title ? 'border-red-300 focus:border-red-300' : 'border-gray-500 focus:border-gray-600'} border bg-gray-700`} {...formik.getFieldProps('title')} />
+                    {formik.touched.title && formik.errors.title ? (<p className="text-red-300 font-bold">{formik.errors.title}</p>) : null}
+                </div>
+                <div className="flex flex-col gap-y-2">
+                    <label className="text-xl font-bold block" htmlFor="dataset">Dataset File</label>
+                    <input
+                        className={` pl-2 pr-4 block w-full cursor-pointer outline-none bg-gray-700 border border-gray-700 rounded ${formik.touched.dataset && formik.errors.dataset ? 'border-red-300 focus:border-red-300' : 'border-gray-500 focus:border-gray-600'}`}
+                        id="dataset"
+                        type="file"
+                        accept="text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                        {...formik.getFieldProps('dataset')}
+                        onChange={(e) => handleFileChange(e)}
+                    />
+                    {formik.touched.dataset && formik.errors.dataset ? (<p className="text-red-300 font-bold">{formik.errors.dataset}</p>) : null}
+                </div>
             </div>
 
-            <input type="submit" />
+            <input className="cursor-pointer outline-none border-none bg-blue-700 py-2 px-8 w-full hover:bg-blue-900 font-bold" type="submit" />
 
         </form>
     )

@@ -7,3 +7,12 @@
 * {
     font-family: 'Nunito', sans-serif;
 }
+
+@layer components {
+    input[type=file]::-webkit-file-upload-button,
+    input[type=file]::file-selector-button {
+        @apply text-white bg-gray-900 hover:bg-gray-700 cursor-pointer border-0 py-2.5 pl-8 pr-4;
+        margin-inline-start: -1rem;
+        margin-inline-end: 1rem;
+    }
+}

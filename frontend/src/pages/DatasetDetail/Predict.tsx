@@ -10,6 +10,15 @@ import { Tab } from "../../Tab"
 import { PredictionModel } from "../../types"
 import { arrayfyStrings } from "../../validators"
 
+const colors = [
+    "blue",
+    "pink",
+    "green",
+    "indigo",
+    "yellow",
+    "red",
+    "purple"
+]
 const Header = () => {
     return (
         <h1>Predict</h1>
@@ -17,7 +26,6 @@ const Header = () => {
 }
 export type CourseSelectionProps = {
     course: string,
-    color: string
 }
 
 export type CourseSelectionContextProps = {
@@ -28,9 +36,9 @@ export type CourseSelectionContextProps = {
 
 const CourseSelectionContext = createContext({} as CourseSelectionContextProps)
 
-const CourseSelection: FunctionComponent<CourseSelectionProps> = ({ course, color }) => {
+const CourseSelection: FunctionComponent<CourseSelectionProps> = ({ course }) => {
     const { fields, setField } = useContext(CourseSelectionContext);
-
+    const color = colors[Math.round(colors.length * Math.random())]
     return (
         <div className="grid grid-cols-5 gap-x-8">
             <p className="col-span-1">{course}</p>
@@ -39,7 +47,7 @@ const CourseSelection: FunctionComponent<CourseSelectionProps> = ({ course, colo
                     <button
                         key={index}
                         onClick={() => setField(course, letter)}
-                        className={`${fields[course] === letter ? 'bg-black text-white' : `bg-${color}-${index + 1}00`} py-0.5 px-8 rounded-lg shadow-lg`}
+                        className={`${fields[course] === letter ? 'bg-black text-white' : `bg-${color || "blue"}-${index + 3}00`} py-0.5 px-8 rounded-lg shadow-lg`}
                     >
                         {letter}
                     </button>
@@ -115,21 +123,31 @@ const Main = () => {
     }, [data])
 
     return (
-        <CourseSelectionContext.Provider value={values}>
+        <>
+            {data?.training_algorithm
+                ? <CourseSelectionContext.Provider value={values}>
+                    <div className="flex flex-col gap-y-8">
+                        <p className="text-2xl font-bold">Predict grade</p>
+                        <div className="flex flex-col gap-y-4">
+                            <div className="flex flex-col gap-y-8">
+                                {Object.keys(fields).map((field) => (
+                                    <CourseSelection key={field} course={field} />
+                                ))}
+                            </div>
+                            {fieldError && <p className="text-red-300 font-bold text-xl">{fieldError}</p>}
+                        </div>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer" onClick={() => handleSubmit()}>Submit</button>
+                    </div>
+                </CourseSelectionContext.Provider>
+                : <p>You've not trained this model and cannot make a prediction. Head to the Train tab and train the algorithm.</p>
+            }
+            {success && <FooterModal message="Prediction complete!" />}
             {showModal && <Modal onClose={() => setShowModal(false)}>
+                <h1 className="text-2xl font-bold text-green-300 mb-6">Prediction complete!</h1>
                 <p>Student is predicted to graduate with a {result?.prediction_result}</p>
             </Modal>}
-            <p>Predict the model here</p>
-            <div className="flex flex-col gap-y-8">
-                {Object.keys(fields).map((field) => (
-                    <CourseSelection key={field} course={field} color="blue" />
-                ))}
-            </div>
-            {fieldError && <p className="text-red-500">{fieldError}</p>}
-            <button className="mt-10 py-0.5 px-8 bg-pink-500 rounded-lg shadow-lg" onClick={() => handleSubmit()}>Submit</button>
             <Loader {...submitting} />
-            {success && <FooterModal message="Columns have been set, you can now train the model" />}
-        </CourseSelectionContext.Provider>
+        </>
     )
 }
 

@@ -1,5 +1,6 @@
 import { useFormik } from "formik";
 import { useContext, useEffect, useMemo, useState } from "react"
+import { FaArrowRight, FaTimes } from "react-icons/fa";
 import * as Yup from "yup";
 import { DetailAxiosContext } from "..";
 import { ErrorContext } from "../../../App"
@@ -11,15 +12,15 @@ import { Table, TableContext } from "../../TableSelection"
 
 const Header = () => {
     return (
-        <h1>Set feature columns</h1>
+        <h1>Manual column selection</h1>
     )
 }
 
 const schema = Yup.object({
     feature_columns: Yup.string()
-        .required("You must set more than one feature columns"),
+        .required("You must set at least one course column"),
     target_column: Yup.string()
-        .required("You must set a target column")
+        .required("You must set a grade column")
 })
 
 const Main = () => {
@@ -79,27 +80,36 @@ const Main = () => {
         <form onSubmit={formik.handleSubmit}>
             <TableContext.Provider value={value}>
                 <Loader {...loading} />
-                {data && <>
-                    <p>Select feature columns by clicking on headers or allow algorithm to select feature and target column for you</p>
-                    
-                    
-                    <Table data={data.dataset} />
-                    <input id="feature_columns" className="hidden" {...formik.getFieldProps('feature_columns')} />
-                    {formik.touched.feature_columns && formik.errors.feature_columns ? <p className="text-red-500">{formik.errors.feature_columns}</p> : null}
-                    
-                    <h2>Select target column</h2>
-                    {[...restColumns].map((col) => (
-                        <span
-                            key={col}
-                            className={`py-0.5 px-3 ${col === targetColumn ? 'bg-green-500': 'bg-purple-500'}`}
-                            onClick={() => handleSetTargetColumn(col)}
-                        >{col}</span>
-                    ))}
-                    <input id="target_column" className="hidden" {...formik.getFieldProps('target_columns')} />
-                    {formik.touched.target_column && formik.errors.target_column ? <p className="text-red-500">{formik.errors.target_column}</p> : null}
+                {data && <div className="flex flex-col gap-y-10">
+                    <div className="flex flex-col gap-y-4">
+                        <h2 className="text-2xl font-bold">Click on a course title to select course column <FaArrowRight className="text-white inline text-xl" /></h2>
+                        <div className="flex flex-col gap-y-4">
+                            <Table data={data.dataset} />
+                            {formik.touched.feature_columns && formik.errors.feature_columns ? <p className="text-red-300 font-bold text-xl">{formik.errors.feature_columns}  <FaTimes className="inline" /></p> : null}
+                            <input id="feature_columns" className="hidden" {...formik.getFieldProps('feature_columns')} />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-y-4">
+                        <h2 className="text-2xl font-bold">Select grade column</h2>
+                        <div className="flex flex-col gap-y-4">
+                            <div className="container">
+                                {[...restColumns].map((col) => (
+                                    <span
+                                        key={col}
+                                        className={`py-1 px-3 ${col === targetColumn ? 'bg-green-500': 'bg-purple-500'} float-left cursor-pointer mr-4 my-4 rounded`}
+                                        onClick={() => handleSetTargetColumn(col)}
+                                    >
+                                        {col}
+                                    </span>
+                                ))}
+                            </div>
+                            <input id="target_column" className="hidden" {...formik.getFieldProps('target_columns')} />
+                            {formik.touched.target_column && formik.errors.target_column ? <p className="text-red-300 font-bold text-xl">{formik.errors.target_column} <FaTimes className="inline" /></p> : null}
+                        </div>
+                    </div>
                     {formik.isSubmitting ? <p>Submitting, please wait</p> : null}
-                    <input type="submit" value="Set columns" className="bg-green-400 py-0.5 px-4 rounded-sm" />
-                </>}
+                    <input type="submit" value="Set columns" className="bg-blue-500 hover:bg-blue-700 text-white text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer" />
+                </div>}
 
             </TableContext.Provider>
             {success && <FooterModal message="Columns have been set, you can now train the model" />}

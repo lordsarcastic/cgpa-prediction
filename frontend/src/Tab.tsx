@@ -23,17 +23,8 @@ export const Header: FunctionComponent<HeaderProps> = ({ children, trigger }) =>
             className={`text-gray-300 ${isCurrent && 'text-gray-900'} hover:text-gray-700 cursor-pointer col-span-1`}
             onClick={() => setCurrent(trigger)}
         >
-            <div className="p-4">
+            <div className={`py-2 px-4  ${isCurrent && 'bg-white shadow-lg'}`}>
                 {children}
-            </div>
-            <div className="flex justify-center items-center">
-                {isCurrent
-                    ? <>
-                    <div className="w-full h-px bg-black" />
-                    <div className="w-10 h-10 transform rotate-45 border border-black" />
-                    <div className="w-full h-px bg-black" />
-                </>
-                    : <div className="w-full h-px bg-black" />}
             </div>
         </div>
     )
@@ -60,18 +51,23 @@ export const TabWrapper: FunctionComponent<TabProps> = ({ tabs }) => {
 
     return (
         <TabContext.Provider value={value}>
-            <div className="flex flex-col md:flex-row gap-x- mb-8">
-                {tabs.map((tab: Tab, index: number) => (
-                        <Header key={tab.trigger} trigger={tab.trigger}>
-                            <tab.Header />
-                        </Header>
+            <div className="flex flex-col gap-y-10">
+                <div className="flex flex-col gap-y-2">
+                    <div className="flex flex-col md:flex-row gap-x-">
+                        {tabs.map((tab: Tab) => (
+                            <Header key={tab.trigger} trigger={tab.trigger}>
+                                <tab.Header />
+                            </Header>
+                        ))}
+                    </div>
+                    <span className="w-full bg-gray-500 rounded-lg h-1" />
+                </div>
+                {tabs.map((tab: Tab) => (
+                    <>
+                        {current === tab.trigger && <tab.Component key={tab.trigger} />}
+                    </>
                 ))}
             </div>
-            {tabs.map((tab: Tab) => (
-                <>
-                    {current === tab.trigger && <tab.Component key={tab.trigger} />}
-                </>
-            ))}
         </TabContext.Provider>
     )
 }

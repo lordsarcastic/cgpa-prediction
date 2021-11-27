@@ -41,13 +41,11 @@ const Main = () => {
     return (
         <DetailAxiosContext.Provider value={value}>
             <Loader {...loading} />
-            {data && <>
+            {data && <div className="flex flex-col gap-y-10 text-white">
+                <h1 className="text-5xl font-bold">{data.title} Dataset</h1>
                 <ListingTable dataset={[data]} />
-                <div>
-                    <h1>The model we are woking with</h1>
-                    <TabWrapper tabs={tabs} />
-                </div>
-            </>
+                <TabWrapper tabs={tabs} />
+            </div>
             }
         </DetailAxiosContext.Provider>
     )

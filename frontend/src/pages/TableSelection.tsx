@@ -9,59 +9,48 @@ export type HighLightedColumnProps = {
 
 export const TableContext = createContext({} as HighLightedColumnProps)
 
-export type CellProps = {
-    content: string | number,
-}
-
-const Cell: FunctionComponent<CellProps> = ({ content }) => {
-    
-    return (
-        <span>{content}</span>
-    )
-}
-
-export type ColumnProps = {
-    name: string
-    data: object,
-}
-
-const Column: FunctionComponent<ColumnProps> = ({ name, data }) => {
+export const Table: FunctionComponent<{data: { [key: string]: {[key: string]: string} }}> = ({ data }) => {
     const { featureColumns, setFeatureColumns, targetColumn } = useContext(TableContext)
-    const [selected, setSelected] = useState<boolean>(false);
 
-    const handleSetSelected = () => {
-        !(name === targetColumn) && setSelected(!selected)
-    }
-
-    useEffect(() => {
+    const handleSetSelected = (name: string) => {
         if (!(name === targetColumn)) {
             const columns = new Set([...featureColumns])
-            selected
-                ? columns.add(name)
-                : columns.has(name) && columns.delete(name)
+            columns.has(name)
+                ? columns.delete(name)
+                : columns.add(name)
             
             setFeatureColumns(new Set([...columns]))
         }
-    }, [selected])
+    }
+
+    useEffect(() => {
+        console.log(featureColumns)
+    }, [featureColumns])
 
     return (
-        <div>
-            <p onClick={() => handleSetSelected()} className="font-bold text-md">{name}</p>
-            <div className={`${selected && 'bg-blue-400 opacity-25'} grid grid-rows-5`}>
-                {Object.entries(data).map(([key, value]) => (
-                    <Cell content={value} key={key} />
+        <table className="table border-separate space-y-6 text-sm w-full text-white">
+            <thead className="bg-gray-700 font-bold text-xl">
+                <tr>
+                    {Object.keys(data).map((name, index) => (
+                        <td onClick={() => handleSetSelected(name)} className={`p-3 cursor-pointer ${featureColumns.has(name) && 'bg-blue-700 '} ${index !== 1 && 'text-left'}`}>{name}</td>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {["0", "1", "2", "3", "4"].map((index) => (
+                    <tr  className="w-full bg-gray-700">
+                        {Object.keys(data).map((title) => (
+                            <td
+                                key={title}
+                                className={`${featureColumns.has(title) && 'bg-blue-400'} p-3 text-left`}
+                            >
+                                {data[title][index].toString().trim()}
+                            </td>
+
+                        ))}
+                    </tr>
                 ))}
-            </div>
-        </div>
-    )
-}
-
-export const Table: FunctionComponent<{data: object}> = ({ data }) => {
-    return (
-        <div className="flex gap-x-4 overflow-auto">
-            {Object.entries(data).map(([name, data]) => (
-                <Column name={name} data={data} key={name} />
-            ))}
-        </div>
+            </tbody>
+        </table>
     )
 }
