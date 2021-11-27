@@ -1,4 +1,4 @@
-import { createContext, Dispatch, FunctionComponent, SetStateAction, useContext, useEffect } from "react"
+import { createContext, Dispatch, FunctionComponent, SetStateAction, useContext } from "react"
 
 export type HighLightedColumnProps = {
     featureColumns: Set<string>,
