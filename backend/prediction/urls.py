@@ -10,7 +10,8 @@ urlpatterns = [
     path("<slug:uuid>/", include([
         path('', TrainingModelDetailView.as_view(), name="training-detail"),
         path('set-columns/', SetColumnsView.as_view(), name="set-columns"),
-        path('select-features/', FeatureSelectionView.as_view(), name="select-features"),
+        path('select-features/', FeatureSelectionView.as_view(),
+             name="select-features"),
         path('train/', TrainModelView.as_view(), name="train"),
         path('predict/', PredictionView.as_view(), name="predict")
     ])),

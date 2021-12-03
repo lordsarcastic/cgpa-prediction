@@ -15,7 +15,7 @@ const Header = () => {
 }
 
 const Main = () => {
-    const { uuid } = useParams<{uuid: string}>();
+    const { uuid } = useParams<{ uuid: string }>();
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [response, setResponse] = useState<TrainedModel>();
     const [success, setSuccess] = useState<boolean>(false);
@@ -37,7 +37,7 @@ const Main = () => {
             {data?.target_column
                 ? <div className="flex flex-col gap-y-8">
                     <p>This model has been trained with the <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{TrainingAlgorithm[data?.training_algorithm]}</span> algorithm.
-                    It could be retrained using either algorithms below</p>
+                        It could be retrained using either algorithms below</p>
                     <div className="flex flex-col gap-y-4">
                         <h2 className="text-2xl font-bold">Train model <FaArrowRight className="text-white inline text-xl" /></h2>
                         <Loader {...submitting} />
@@ -61,8 +61,8 @@ const Main = () => {
             {response && <Modal onClose={() => setResponse({} as TrainedModel)}>
                 <h1 className="text-2xl font-bold text-green-300 mb-6">Model Trained!</h1>
                 <div className="px-6">
-                    <p>Accuracy of trained model is: <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{response.accuracy}%</span>. 
-                    If you're not satisfied, you can set new columns and retrain the model or use a different training algorithm</p>
+                    <p>Accuracy of trained model is: <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{response.accuracy}%</span>.
+                        If you're not satisfied, you can set new columns and retrain the model or use a different training algorithm</p>
                     <p>Training algorithm used: <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{TrainingAlgorithm[response.training_algorithm]}</span></p>
                 </div>
             </Modal>}

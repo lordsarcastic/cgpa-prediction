@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from Learning.utils import ALLOWED_EXTENSIONS
 
+
 def arrayfy_strings(columns_string):
     """
     Parses tag input, with multiple word input being activated and
@@ -88,6 +89,7 @@ def split_strip(string, delimiter=","):
     words = [w.strip() for w in string.split(delimiter)]
     return [w for w in words if w]
 
+
 def stringify_array(feature_columns: List[str]) -> str:
     return str(feature_columns)
 
@@ -100,20 +102,26 @@ def clean_array(array: List) -> List:
 
     return list(filter(bool, array))
 
+
 def validate_dataset(value):
-        extension = value.name.split('.')[-1]
-        if extension not in ALLOWED_EXTENSIONS:
-            raise ValidationError(_(f'Expected file with extension: {ALLOWED_EXTENSIONS}, found file type of {extension}'))
-        
+    extension = value.name.split('.')[-1]
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValidationError(
+            _(f'Expected file with extension: {ALLOWED_EXTENSIONS}, found file type of {extension}'))
+
+
 def validate_feature_columns(value):
     try:
         arrayfy_strings(value)
     except:
-        raise ValidationError(_('Columns are not valid as an array. Ensure input is a string of comma-separated values'))
+        raise ValidationError(
+            _('Columns are not valid as an array. Ensure input is a string of comma-separated values'))
 
-def remove_chars_from_string(string: str, chars: List, replacement: str=None) -> str:
+
+def remove_chars_from_string(string: str, chars: List, replacement: str = None) -> str:
     if replacement:
-        result = "".join(map(lambda char: replacement if char in chars else char, string))
+        result = "".join(
+            map(lambda char: replacement if char in chars else char, string))
     else:
         result = "".join(filter(lambda char: char not in chars, string))
 

@@ -8,7 +8,7 @@ import { getListOfDataset } from '../../requests';
 import { ListTrainingModel, Page, TrainingAlgorithm, TrainingAlgorithmColor } from '../../types'
 import { AddDatasetForm } from './AddDatasetForm';
 
-const ListingItem: FunctionComponent<ListTrainingModel> = ({uuid, title, trained_model, created, last_updated, feature_columns, target_column, training_algorithm}) => {
+const ListingItem: FunctionComponent<ListTrainingModel> = ({ uuid, title, trained_model, created, last_updated, feature_columns, target_column, training_algorithm }) => {
     return (
         <tr className="w-full bg-gray-700">
             <td className="p-3"><Link className="text-green-200 font-bold" to={`/${uuid}`}>{uuid}</Link></td>
@@ -27,7 +27,7 @@ const ListingItem: FunctionComponent<ListTrainingModel> = ({uuid, title, trained
     )
 }
 
-export const ListingTable: FunctionComponent<{dataset: ListTrainingModel[]}> = ({dataset}) => {
+export const ListingTable: FunctionComponent<{ dataset: ListTrainingModel[] }> = ({ dataset }) => {
     return (
         <table className="table border-separate space-y-6 text-sm w-full text-white">
             <thead className="bg-gray-700 font-bold text-xl">
@@ -46,13 +46,13 @@ export const ListingTable: FunctionComponent<{dataset: ListTrainingModel[]}> = (
                     <ListingItem key={data.uuid} {...data} />
                 ))}
             </tbody>}
-    </table>
+        </table>
     )
 }
 
 export const Listing = () => {
     const [dataset, setDataset] = useState<ListTrainingModel[]>([]);
-    const {error, setError } = useContext(ErrorContext)
+    const { error, setError } = useContext(ErrorContext)
     const [loading, setLoading] = useState<boolean>(false);
     const [showForm, setShowForm] = useState(false)
 
@@ -69,7 +69,7 @@ export const Listing = () => {
         },
         [setError],
     )
-    
+
     const handleAddDataSet = () => {
         setShowForm(true)
     }

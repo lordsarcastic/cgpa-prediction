@@ -57,9 +57,9 @@ const CourseSelection: FunctionComponent<CourseSelectionProps> = ({ course }) =>
 
 const Main = () => {
     const { data, refetch } = useContext(DetailAxiosContext);
-    const { uuid } = useParams<{uuid: string}>();
+    const { uuid } = useParams<{ uuid: string }>();
     const [fieldError, setFieldError] = useState<string>();
-    const [ submitting, setSubmitting] = useState<boolean>(false)
+    const [submitting, setSubmitting] = useState<boolean>(false)
     const [showModal, setShowModal] = useState(false)
     const [result, setResult] = useState<PredictionModel>()
 

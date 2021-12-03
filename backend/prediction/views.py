@@ -39,7 +39,7 @@ class ListOrCreateTrainingModelView(generics.ListCreateAPIView):
             created: When the dataset was created
             last_updated: When last an operation was performed on the dataset
     """
-    
+
     queryset = TrainingModel.objects.all()
 
     def get_serializer_class(self):
@@ -56,12 +56,13 @@ class TrainingModelDetailView(generics.RetrieveAPIView):
     serializer_class = TrainingModelSerializer
     lookup_field = 'uuid'
 
+
 class SetColumnsView(generics.UpdateAPIView):
     """
     Expects:
         feature_columns: A string of comma-separated column names
         target_column: A string specifying a target column
-    
+
     Returns:
         feature_columns: A stringified array of columns
         target_column: A string containing the target column
@@ -80,7 +81,7 @@ class FeatureSelectionView(generics.UpdateAPIView):
             - pearson: Pearson's correlation
         target_column: A string containing the target column which is
             exluded from the feature selection
-    
+
     Returns:
         feature_columns: A stringified array of columns
         target_column: A string containing the target column
@@ -108,7 +109,7 @@ class TrainModelView(generics.UpdateAPIView):
             to use for training the model. Choices are:
             - decision_tree: Decision Tree Classifier
             - random_forest: Random Forest
-    
+
     Returns:
         uuid: UUID of the dataset
         title: Title of the dataset
@@ -154,5 +155,5 @@ class PredictionView(generics.UpdateAPIView):
         if serializer.is_valid():
             data = serializer.predict()
             return Response(data, status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

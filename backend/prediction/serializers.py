@@ -21,7 +21,8 @@ class DataFrameField(serializers.FileField):
         try:
             file_data = read_file_data(value.path)
         except:
-            raise ValidationError(_("Cannot read dataset. Is it a CSV or Excel file?"))
+            raise ValidationError(
+                _("Cannot read dataset. Is it a CSV or Excel file?"))
         dataframe = produce_dataframe(file_data)
         return dataframe.head().to_dict()
 
@@ -65,7 +66,8 @@ class TrainingModelSerializer(serializers.ModelSerializer):
         try:
             file_data = read_file_data(dataset_path.path)
         except:
-            raise ValidationError(_("Cannot read dataset. Is it a CSV or Excel file?"))
+            raise ValidationError(
+                _("Cannot read dataset. Is it a CSV or Excel file?"))
         dataframe = produce_dataframe(file_data, columns)
         return dataframe
 
@@ -78,8 +80,10 @@ class TrainingModelSerializer(serializers.ModelSerializer):
         """
         extension = value.name.split('.')[-1]
         if extension not in ALLOWED_EXTENSIONS:
-            raise serializers.ValidationError(f"Expected file with extension: `{', '.join(ALLOWED_EXTENSIONS.keys())}`, found file type of {extension}")
+            raise serializers.ValidationError(
+                f"Expected file with extension: `{', '.join(ALLOWED_EXTENSIONS.keys())}`, found file type of {extension}")
         return value
+
 
 class SetColumnsSerializer(TrainingModelSerializer):
     feature_columns = serializers.CharField(required=True)
@@ -93,31 +97,35 @@ class SetColumnsSerializer(TrainingModelSerializer):
         try:
             value_array = arrayfy_strings(value)
         except:
-            raise serializers.ValidationError('Columns are not valid as an array. Ensure input is a string of comma-separated values')
+            raise serializers.ValidationError(
+                'Columns are not valid as an array. Ensure input is a string of comma-separated values')
 
         dataframe = self.get_dataframe_from_dataset(self.instance.dataset)
         columns = clean_array(value_array)
 
         for column in columns:
             if column and column not in dataframe.columns:
-                raise ValidationError(_(f"{column} is not a column in dataset"))
+                raise ValidationError(
+                    _(f"{column} is not a column in dataset"))
 
-        
         if self.initial_data.get('target_columns') in columns:
-            raise ValidationError(_("Target column cannot be a part of feature columns"))
-    
+            raise ValidationError(
+                _("Target column cannot be a part of feature columns"))
+
         return value
-    
+
     def validate_target_column(self, value):
         dataframe = self.get_dataframe_from_dataset(self.instance.dataset)
         if value and value not in dataframe.columns:
-            raise ValidationError(_(f"Target column '{value}' is not in dataset"))
+            raise ValidationError(
+                _(f"Target column '{value}' is not in dataset"))
 
         return value
 
 
 class FeatureSelectionSerializer(SetColumnsSerializer):
-    feature_selection_algorithm = serializers.ChoiceField(choices=TrainingModel.FeatureSelectionAlgorithm.choices)
+    feature_selection_algorithm = serializers.ChoiceField(
+        choices=TrainingModel.FeatureSelectionAlgorithm.choices)
     target_column = serializers.CharField(required=True)
 
     class Meta:
@@ -127,7 +135,8 @@ class FeatureSelectionSerializer(SetColumnsSerializer):
     def validate_target_column(self, value):
         dataframe = self.get_dataframe_from_dataset(self.instance.dataset)
         if value and value not in dataframe.columns:
-            raise ValidationError(_(f"Target column '{value}' is not in dataset"))
+            raise ValidationError(
+                _(f"Target column '{value}' is not in dataset"))
 
         return value
 
@@ -141,12 +150,13 @@ class FeatureSelectionSerializer(SetColumnsSerializer):
             instance.dataset.path,
             validated_data.get('target_column')
         )
-        
-        if (col := validated_data.get('target_column')) in features: 
+
+        if (col := validated_data.get('target_column')) in features:
             features.remove(col)
 
         features.sort()
-        instance.feature_selection_algorithm = self.validated_data.get("feature_selection_algorithm")
+        instance.feature_selection_algorithm = self.validated_data.get(
+            "feature_selection_algorithm")
         instance.feature_columns = ', '.join(features)
         instance.target_column = self.validated_data.get('target_column')
         instance.save()
@@ -159,7 +169,7 @@ class TrainModelSerializer(serializers.ModelSerializer):
         model = TrainingModel
         read_only_fields = ('uuid', 'title', )
         fields = ('uuid', 'title', 'training_algorithm',)
-    
+
     def validate_training_algorithm(self, value):
         if value == '':
             raise ValidationError(_("Training algorithm must be selected"))
@@ -210,7 +220,7 @@ class PredictionSerializer(serializers.Serializer):
 
         if not instance.feature_columns:
             raise ValidationError(_("Feature columns have not yet been set"))
-        
+
         if not instance.trained_model:
             raise ValidationError(_("Model has not been trained yet"))
 
@@ -219,14 +229,16 @@ class PredictionSerializer(serializers.Serializer):
                 ',',
                 ' '
         ).split():
-            raise ValidationError(_(f"Expected column(s) {instance.feature_columns}, got {list(value.keys())}"))
-        
+            raise ValidationError(
+                _(f"Expected column(s) {instance.feature_columns}, got {list(value.keys())}"))
+
         for item in value.values():
             if item.upper() not in GRADE_VALUE.keys():
-                raise ValidationError(_(f"'{item}' is not one of {tuple(GRADE_VALUE.keys())}"))
+                raise ValidationError(
+                    _(f"'{item}' is not one of {tuple(GRADE_VALUE.keys())}"))
 
         return value
-    
+
     def predict(self):
         instance = self.context['instance']
         user_input = list(map(
@@ -237,7 +249,7 @@ class PredictionSerializer(serializers.Serializer):
         model_results = open(instance.trained_model.path, 'rb')
         training_results = pickle.load(model_results)
         prediction_result = training_results['clf'].predict([user_input])
-        
+
         result = {
             'prediction_result': TRANSPOSED_GP_VALUE[str(prediction_result[0])],
             'fields': self.validated_data.get('fields')

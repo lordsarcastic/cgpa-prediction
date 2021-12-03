@@ -15,7 +15,7 @@ const schema = Yup.object({
         .required("Dataset is a required field")
 })
 
-export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<boolean>>}) => {
+export const AddDatasetForm = ({ showForm }: { showForm: Dispatch<SetStateAction<boolean>> }) => {
     const [file, setFile] = useState<File | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +32,7 @@ export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<
     }
 
     const validateFile = () => {
-        const invalid = file!.size  > Constant.fileSize * 1024 * 1024 
+        const invalid = file!.size > Constant.fileSize * 1024 * 1024
         invalid && formik.setFieldError('dataset', "File must be at most 4 MB in size")
         return !invalid
     }
@@ -44,7 +44,7 @@ export const AddDatasetForm = ({ showForm }: {showForm: Dispatch<SetStateAction<
         },
         onSubmit: (values, { setSubmitting }) => {
             setSubmitting(true)
-            validateFile() && createDataset({title: values.title, dataset:file!})
+            validateFile() && createDataset({ title: values.title, dataset: file! })
                 .then((data) => {
                     showForm(false)
                 })

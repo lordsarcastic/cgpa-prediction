@@ -7,35 +7,40 @@ from sklearn.linear_model import LinearRegression
 
 from .utils import DATA_FILE, GP_VALUE, GRADE_VALUE, TARGET_COLUMN, normalize_dataframe, prepare_dataset, read_file_data
 
+
 def pearson_feature_selection(
     file_data: str,
     target_col: str,
-    grade_value: Dict[str, int]=GRADE_VALUE,
-    gp_value: Dict[str, int]=GP_VALUE,
+    grade_value: Dict[str, int] = GRADE_VALUE,
+    gp_value: Dict[str, int] = GP_VALUE,
 ):
     excel_data = read_file_data(file_data)
     columns = list(excel_data.columns)
     columns.remove(target_col)
     feature_col = columns
-    processed_data = normalize_dataframe(feature_col, target_col, excel_data, grade_value, gp_value)
+    processed_data = normalize_dataframe(
+        feature_col, target_col, excel_data, grade_value, gp_value)
     cor = processed_data.corr()
     cor_target = abs(cor[target_col])
     relevant_features = cor_target[cor_target > 0.5]
 
     return list(relevant_features.index)
 
+
 def rfe_feature_selection(
     file_data: str,
     target_col: str,
-    grade_value: Dict[str, int]=GRADE_VALUE,
-    gp_value: Dict[str, int]=GP_VALUE,
+    grade_value: Dict[str, int] = GRADE_VALUE,
+    gp_value: Dict[str, int] = GP_VALUE,
 ):
     excel_data = read_file_data(file_data)
     columns = list(excel_data.columns)
     columns.remove(target_col)
     feature_col = columns
-    processed_data = normalize_dataframe(feature_col, target_col, excel_data, grade_value, gp_value)
-    splitted_dataset = prepare_dataset(file_data, feature_col, target_col, grade_value, gp_value)
+    processed_data = normalize_dataframe(
+        feature_col, target_col, excel_data, grade_value, gp_value)
+    splitted_dataset = prepare_dataset(
+        file_data, feature_col, target_col, grade_value, gp_value)
     number_of_features_list = np.arange(1, len(feature_col))
     high_score = 0
     number_of_features = 0
@@ -56,7 +61,8 @@ def rfe_feature_selection(
 
     model = LinearRegression()
     rfe = RFE(model, n_features_to_select=number_of_features)
-    feature_rfe = rfe.fit_transform(processed_data[feature_col], processed_data[target_col])
+    feature_rfe = rfe.fit_transform(
+        processed_data[feature_col], processed_data[target_col])
     model.fit(feature_rfe, processed_data[target_col])
     temp = pd.Series(rfe.support_, index=feature_col)
     selected_features_rfe = temp[temp == True].index

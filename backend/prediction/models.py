@@ -22,9 +22,12 @@ class TrainingModel(models.Model):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=64)
-    dataset = models.FileField(upload_to='models', validators=[validate_dataset])
-    feature_selection_algorithm = models.CharField(choices=FeatureSelectionAlgorithm.choices, max_length=7, blank=True)
-    training_algorithm = models.CharField(choices=TrainingAlgorithm.choices, max_length=13, blank=True)
+    dataset = models.FileField(
+        upload_to='models', validators=[validate_dataset])
+    feature_selection_algorithm = models.CharField(
+        choices=FeatureSelectionAlgorithm.choices, max_length=7, blank=True)
+    training_algorithm = models.CharField(
+        choices=TrainingAlgorithm.choices, max_length=13, blank=True)
     target_column = models.CharField(max_length=50, blank=True)
     feature_columns = models.TextField(blank=True)
     trained_model = models.FileField(upload_to='models/trained', blank=True)
@@ -36,34 +39,38 @@ class TrainingModel(models.Model):
 
     class Meta:
         ordering = ['-last_updated']
-    
+
     @lru_cache
     def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
         file_data = read_file_data(dataset_path.path)
         dataframe = produce_dataframe(file_data, columns)
-        
+
         return dataframe
 
     def clean(self):
         extension = self.dataset.name.split('.')[-1]
         if extension not in ALLOWED_EXTENSIONS:
-            raise ValidationError(_(f'Expected file with extension: {ALLOWED_EXTENSIONS}, found file type of {extension}'))
-        
+            raise ValidationError(
+                _(f'Expected file with extension: {ALLOWED_EXTENSIONS}, found file type of {extension}'))
+
         try:
             value_array = arrayfy_strings(self.feature_columns)
         except:
-            raise ValidationError(_('Columns are not valid as an array. Ensure input is a string of comma-separated values'))
-        
+            raise ValidationError(
+                _('Columns are not valid as an array. Ensure input is a string of comma-separated values'))
+
         dataframe = self.get_dataframe_from_dataset(self.dataset)
         if self.target_column and self.target_column not in dataframe.columns:
-            raise ValidationError(_(f"Target column '{self.target_column}' is not in dataset"))
+            raise ValidationError(
+                _(f"Target column '{self.target_column}' is not in dataset"))
 
         columns = clean_array(value_array)
 
         for column in columns:
             if column and column not in dataframe.columns:
-                raise ValidationError(_(f"{column} is not a column in dataset"))
-        
+                raise ValidationError(
+                    _(f"{column} is not a column in dataset"))
+
     def save(self, *args, **kwargs):
         value_array = arrayfy_strings(self.feature_columns)
         if self.target_column in value_array:
@@ -75,4 +82,3 @@ class TrainingModel(models.Model):
 
     def get_absolute_url(self):
         return reverse("prediction:training-detail", kwargs={"uuid": self.uuid})
-    

@@ -29,7 +29,7 @@ const Modal: FunctionComponent<ModalChildType> = ({ children, onClose }) => {
     )
 }
 
-export const FooterModal = ({message}: {message:string}) => {
+export const FooterModal = ({ message }: { message: string }) => {
     const [display, setDisplay] = useState<boolean>(true);
 
     useEffect(() => {
@@ -40,11 +40,11 @@ export const FooterModal = ({message}: {message:string}) => {
 
     return (
         <>
-        {display &&
-            <div className="absolute bottom-0 w-full py-4 bg-gray-800 text-white shadow-lg px-8">
-                {message}
-            </div>
-        }
+            {display &&
+                <div className="absolute bottom-0 w-full py-4 bg-gray-800 text-white shadow-lg px-8">
+                    {message}
+                </div>
+            }
         </>
     )
 }

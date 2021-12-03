@@ -46,7 +46,7 @@ export type ListTrainingModel = CreateTrainingModel & ColumnsModel & {
 }
 
 export type ListTrainingModelWithHeader = ListTrainingModel & {
-    dataset: {[key: string]: { [key: string]: string }}
+    dataset: { [key: string]: { [key: string]: string } }
 }
 
 export type FeatureSelectionModel = {

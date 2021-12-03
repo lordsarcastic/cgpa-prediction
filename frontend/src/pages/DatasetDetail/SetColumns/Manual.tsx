@@ -38,13 +38,13 @@ const Main = () => {
         onSubmit: (values, { setSubmitting }) => {
             setSubmitting(true)
             data && setColumns(data.uuid, values.feature_columns, values.target_column)
-            .then(() => {
-                setSuccess(true)
-                setTimeout(() => setSuccess(false), 5000)
-                refetch()
-            })
-            .catch(error => console.log(error))
-            .finally(() => setSubmitting(false))
+                .then(() => {
+                    setSuccess(true)
+                    setTimeout(() => setSuccess(false), 5000)
+                    refetch()
+                })
+                .catch(error => console.log(error))
+                .finally(() => setSubmitting(false))
         },
         validationSchema: schema
     })
@@ -66,7 +66,7 @@ const Main = () => {
     }, [data, featureColumns])
 
     useEffect(() => {
-        error && setError({message: error?.message})
+        error && setError({ message: error?.message })
     }, [error, setError])
 
     const value = useMemo(() => ({
@@ -96,7 +96,7 @@ const Main = () => {
                                 {[...restColumns].map((col) => (
                                     <span
                                         key={col}
-                                        className={`py-1 px-3 ${col === targetColumn ? 'bg-green-500': 'bg-purple-500'} float-left cursor-pointer mr-4 my-4 rounded`}
+                                        className={`py-1 px-3 ${col === targetColumn ? 'bg-green-500' : 'bg-purple-500'} float-left cursor-pointer mr-4 my-4 rounded`}
                                         onClick={() => handleSetTargetColumn(col)}
                                     >
                                         {col}

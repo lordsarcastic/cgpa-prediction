@@ -9,7 +9,7 @@ export type HighLightedColumnProps = {
 
 export const TableContext = createContext({} as HighLightedColumnProps)
 
-export const Table: FunctionComponent<{data: { [key: string]: {[key: string]: string} }}> = ({ data }) => {
+export const Table: FunctionComponent<{ data: { [key: string]: { [key: string]: string } } }> = ({ data }) => {
     const { featureColumns, setFeatureColumns, targetColumn } = useContext(TableContext)
 
     const handleSetSelected = (name: string) => {
@@ -18,7 +18,7 @@ export const Table: FunctionComponent<{data: { [key: string]: {[key: string]: st
             columns.has(name)
                 ? columns.delete(name)
                 : columns.add(name)
-            
+
             setFeatureColumns(new Set([...columns]))
         }
     }

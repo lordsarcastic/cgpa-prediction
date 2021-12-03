@@ -5,8 +5,8 @@ import { DatasetDetail } from './pages/DatasetDetail';
 import { ListingPage } from './pages/DatasetList';
 
 export type ErrorContextProps = {
-    error?: ErrorProps,
-    setError: Dispatch<SetStateAction<ErrorProps | undefined>>
+  error?: ErrorProps,
+  setError: Dispatch<SetStateAction<ErrorProps | undefined>>
 }
 
 export const ErrorContext = createContext<ErrorContextProps>({} as ErrorContextProps);

@@ -6,7 +6,6 @@ from sklearn.tree import DecisionTreeClassifier as DCF
 from .utils import prepare_dataset
 
 
-
 def decision_tree_classifier(file_data: str, feature_columns: List[str], target_column: str) -> Dict:
     splitted_dataset = prepare_dataset(
         file_data,
@@ -23,6 +22,7 @@ def decision_tree_classifier(file_data: str, feature_columns: List[str], target_
         'clf': clf
     }
     return results
+
 
 def random_forest_classifier(file_data: str, feature_columns: List[str], target_column: str) -> Dict:
     splitted_dataset = prepare_dataset(

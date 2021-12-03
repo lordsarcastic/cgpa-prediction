@@ -6,6 +6,7 @@ from pathlib import Path
 def produce_from_env(value: str, default: any = None) -> any:
     return environ.get(value, default)
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = 'django-insecure-1(xm8)reb=+gcc!c7k5cvkggw(6abmr^&z14=z9#_ztp2%qaxk'

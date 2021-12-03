@@ -1,6 +1,7 @@
-import { createContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import { useParams } from "react-router";
 import { useAxios } from "use-axios-client";
+import { ErrorContext } from "../../App";
 import Loader from "../../Loader";
 import { client, ENDPOINTS, replaceUUID } from "../../requests";
 import { TabWrapper } from "../../Tab";
@@ -24,7 +25,8 @@ export type DetailAxiosProps = {
 
 export const DetailAxiosContext = createContext({} as DetailAxiosProps)
 const Main = () => {
-    const { uuid } = useParams<{uuid: string}>();
+    const { setError } = useContext(ErrorContext);
+    const { uuid } = useParams<{ uuid: string }>();
     const uuidEndpoint = replaceUUID(ENDPOINTS.datasetDetail, uuid);
     const { data, error, loading, refetch } = useAxios<ListTrainingModelWithHeader>({
         axiosInstance: client,
@@ -37,6 +39,10 @@ const Main = () => {
         refetch,
         error
     }), [data, loading, refetch, error])
+
+    useEffect(() => {
+        error && setError({ message: error?.message })
+    })
 
     return (
         <DetailAxiosContext.Provider value={value}>

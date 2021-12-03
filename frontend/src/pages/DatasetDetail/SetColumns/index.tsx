@@ -26,7 +26,7 @@ const Main = () => {
                 Next, you select the <span className="py-0.5 px-4 bg-pink-900 font-bold mx-0.5">grade column</span>. This is supposed to be the column containing the final grade with expected values
                 ranging between PASS and FIRST CLASS. Any unexpected data will be interpreted as a PASS.
             </p>
-                <TabWrapper tabs={tabs} />
+            <TabWrapper tabs={tabs} />
         </div>
     )
 }
