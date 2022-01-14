@@ -11,11 +11,9 @@ pydotplus = "*"
 django = "*"
 django-cors-headers = "*"
 djangorestframework = "*"
-django-heroku = "*"
-psycopg2-binary = "*"
-gunicorn = "*"
 scikit-learn = "*"
 openpyxl = "*"
+imbalanced-learn = "*"
 
 [dev-packages]
 autopep8 = "*"
