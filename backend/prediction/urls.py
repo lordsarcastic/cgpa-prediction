@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .views import FeatureSelectionView, ListOrCreateTrainingModelView, PredictionView, SetColumnsView, TrainModelView, TrainingModelDetailView
+from .views import FeatureSelectionView, ListOrCreateTrainingModelView, PredictionView, SetColumnsView, TrainModelView, TrainingModelDetailView, UniqueValuesForColumnsView
 
 
 app_name = 'prediction'
@@ -13,6 +13,7 @@ urlpatterns = [
         path('select-features/', FeatureSelectionView.as_view(),
              name="select-features"),
         path('train/', TrainModelView.as_view(), name="train"),
-        path('predict/', PredictionView.as_view(), name="predict")
+        path('predict/', PredictionView.as_view(), name="predict"),
+        path('unique-columns/', UniqueValuesForColumnsView.as_view(), name="unique-columns"),
     ])),
 ]

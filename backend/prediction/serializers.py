@@ -24,6 +24,10 @@ class DataFrameField(serializers.FileField):
             raise ValidationError(
                 _("Cannot read dataset. Is it a CSV or Excel file?"))
         dataframe = produce_dataframe(file_data)
+        result = {
+            "dataset": dataframe.head().to_dict()
+        }
+        dataframe.columns
         return dataframe.head().to_dict()
 
 
@@ -256,3 +260,42 @@ class PredictionSerializer(serializers.Serializer):
         }
 
         return result
+
+
+class UniqueResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingModel
+        fields = ('uuid',)
+    
+    def validate(self, attrs):
+        if not self.instance.feature_columns:
+            raise ValidationError(_("Feature columns must be set"))
+        return super().validate(attrs)
+
+    @lru_cache
+    def get_dataframe_from_dataset(self, dataset_path, columns: List[str] = None):
+        try:
+            file_data = read_file_data(dataset_path.path)
+        except:
+            raise ValidationError(
+                _("Cannot read dataset. Is it a CSV or Excel file?"))
+        dataframe = produce_dataframe(file_data, columns)
+        return dataframe
+
+    def to_representation(self, instance: TrainingModel):
+        representation = super().to_representation(instance)
+        result = {}
+        dataset = self.get_dataframe_from_dataset(instance.dataset).fillna("")
+        columns = remove_chars_from_string(
+            instance.feature_columns,
+            ',',
+            ' '
+        ).split()
+        columns.sort()
+        print("columns", columns)
+        for column in columns:
+            result[column] = {v.strip() for v in dataset[column].unique() if v}
+            print(result)
+
+        representation["columns"] = result
+        return representation

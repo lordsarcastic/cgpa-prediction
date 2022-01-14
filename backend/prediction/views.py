@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import FeatureSelectionSerializer, ListTrainingModelSerializer, PredictionSerializer, SetColumnsSerializer, TrainModelSerializer, TrainingModelSerializer
+from .serializers import FeatureSelectionSerializer, ListTrainingModelSerializer, PredictionSerializer, SetColumnsSerializer, TrainModelSerializer, TrainingModelSerializer, UniqueResultSerializer
 from .models import TrainingModel
 
 
@@ -157,3 +157,9 @@ class PredictionView(generics.UpdateAPIView):
             return Response(data, status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UniqueValuesForColumnsView(generics.RetrieveAPIView):
+    serializer_class = UniqueResultSerializer
+    queryset = TrainingModel
+    lookup_field = 'uuid'
