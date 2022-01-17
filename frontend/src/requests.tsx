@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ColumnsModel, CreateTrainingModel, FeatureSelectionAlgorithmStrings, ListTrainingModel, PredictionModel, TrainedModel, TrainingAlgorithmStrings } from "./types";
+import { AllowedColumnValues, ColumnsModel, CreateTrainingModel, FeatureSelectionAlgorithmStrings, ListTrainingModel, PredictionModel, TrainedModel, TrainingAlgorithmStrings } from "./types";
 
 export const client = axios.create({
     baseURL: 'http://localhost:8000/prediction'
@@ -14,7 +14,8 @@ export const ENDPOINTS = {
     setColumns: '/?uuid/set-columns/',
     selectFeatures: '/?uuid/select-features/',
     train: '/?uuid/train/',
-    predict: '/?uuid/predict/'
+    predict: '/?uuid/predict/',
+    getUniqueValuesForColumns: '/?uuid/unique-columns/'
 }
 
 
@@ -94,6 +95,16 @@ export const predictOutcome = async (uuid: string, columns: object): Promise<Pre
         {
             fields: columns
         }
+    )
+
+    console.log(response)
+
+    return response.data;
+}
+
+export const getUniqueValuesForColumn = async (uuid: string): Promise<AllowedColumnValues> => {
+    const response = await client.get(
+        replaceUUID(ENDPOINTS.getUniqueValuesForColumns, uuid)
     )
 
     return response.data;

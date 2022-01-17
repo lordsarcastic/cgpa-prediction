@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from imblearn.over_sampling import SMOTE
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.tree import DecisionTreeClassifier as DCF
 

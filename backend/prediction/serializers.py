@@ -236,17 +236,17 @@ class PredictionSerializer(serializers.Serializer):
             raise ValidationError(
                 _(f"Expected column(s) {instance.feature_columns}, got {list(value.keys())}"))
 
-        for item in value.values():
-            if item.upper() not in GRADE_VALUE.keys():
-                raise ValidationError(
-                    _(f"'{item}' is not one of {tuple(GRADE_VALUE.keys())}"))
+        # for item in value.values():
+        #     if item.upper() not in GRADE_VALUE.keys():
+        #         raise ValidationError(
+        #             _(f"'{item}' is not one of {tuple(GRADE_VALUE.keys())}"))
 
         return value
 
     def predict(self):
         instance = self.context['instance']
         user_input = list(map(
-            lambda value: GRADE_VALUE.get(value.upper()),
+            lambda value: GRADE_VALUE.get(value.upper()) or 1,
             list(self.validated_data.get('fields').values())
         ))
 

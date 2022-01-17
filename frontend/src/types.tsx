@@ -69,3 +69,8 @@ export type PredictionModel = {
     fields: object,
     prediction_result: string
 }
+
+export type AllowedColumnValues = {
+    uuid: string,
+    columns: Record<string, Array<string>>
+}

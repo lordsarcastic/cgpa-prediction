@@ -2,6 +2,7 @@
 
 import pandas as pd
 from typing import List, Dict
+from imblearn.over_sampling import SMOTE
 from pandas.core.frame import DataFrame
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier as DCF
@@ -104,6 +105,8 @@ def normalize_dataframe(feature_cols: List[str], target_col: str, data: DataFram
 
 
 def split_dataset(features: List[str], target: str, test_size=TEST_SIZE, random_state=RANDOM_STATE) -> list:
+    smote = SMOTE()
+    features, target = smote.fit_resample(features, target)
     splitted_data = train_test_split(
         features,
         target,
