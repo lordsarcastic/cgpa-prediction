@@ -32,12 +32,6 @@ const Modal: FunctionComponent<ModalChildType> = ({ children, onClose }) => {
 export const FooterModal = ({ message }: { message: string }) => {
     const [display, setDisplay] = useState<boolean>(true);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setDisplay(false)
-        }, 5000)
-    })
-
     return (
         <>
             {display &&

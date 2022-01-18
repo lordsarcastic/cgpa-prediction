@@ -19,6 +19,9 @@ class TrainingModel(models.Model):
     class TrainingAlgorithm(models.TextChoices):
         dt = 'decision_tree', "Decision Tree Classifier"
         rf = 'random_forest', "Random Forest"
+        nb = 'naive_bayes', "Naive Bayes"
+        knn = 'k_nearest_neighbours', "K Nearest Neighbours"
+        svm = 'support_vector', "Support Vector Machine"
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=64)
@@ -27,7 +30,7 @@ class TrainingModel(models.Model):
     feature_selection_algorithm = models.CharField(
         choices=FeatureSelectionAlgorithm.choices, max_length=7, blank=True)
     training_algorithm = models.CharField(
-        choices=TrainingAlgorithm.choices, max_length=13, blank=True)
+        choices=TrainingAlgorithm.choices, max_length=20, blank=True)
     target_column = models.CharField(max_length=50, blank=True)
     feature_columns = models.TextField(blank=True)
     trained_model = models.FileField(upload_to='models/trained', blank=True)

@@ -6,7 +6,7 @@ import Loader from "../../Loader"
 import Modal, { FooterModal } from "../../Modal"
 import { trainModel } from "../../requests"
 import { Tab } from "../../Tab"
-import { TrainedModel, TrainingAlgorithm, TrainingAlgorithmStrings } from "../../types"
+import { TrainedModel, TrainingAlgorithm, TrainingAlgorithmColor, TrainingAlgorithmStrings } from "../../types"
 
 const Header = () => {
     return (
@@ -24,41 +24,61 @@ const Main = () => {
         setSubmitting(true)
         trainModel(uuid, algorithm)
             .then((data) => {
-                setSuccess(true)
+                setSuccess(true);
                 setResponse(data)
-                setTimeout(() => setSuccess(false), 5000)
+                // setTimeout(() => setSuccess(false), 5000)
+                console.log(response)
                 refetch()
             })
             .catch(error => console.log(error))
             .finally(() => setSubmitting(false))
     }
+
     return (
         <>
             {data?.target_column
                 ? <div className="flex flex-col gap-y-8">
                     <p>This model has been trained with the <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{TrainingAlgorithm[data?.training_algorithm]}</span> algorithm.
-                        It could be retrained using either algorithms below</p>
+                        It could be retrained using either algorithms below.</p>
                     <div className="flex flex-col gap-y-4">
                         <h2 className="text-2xl font-bold">Train model <FaArrowRight className="text-white inline text-xl" /></h2>
                         <Loader {...submitting} />
                         <div className="flex gap-x-8 w-full">
                             <button
                                 onClick={() => handleTrainModel('decision_tree')}
-                                className="bg-green-400 hover:bg-green-600 w-full text-white text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer"
+                                className={`${TrainingAlgorithmColor.decision_tree} w-full text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer`}
                             >
-                                Decision Tree Classifier
+                                {TrainingAlgorithm.decision_tree}
                             </button>
                             <button
                                 onClick={() => handleTrainModel('random_forest')}
-                                className="bg-yellow-400 hover:bg-yellow-600 w-full text-white text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer"
+                                className={`${TrainingAlgorithmColor.random_forest} w-full text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer`}
                             >
-                                Random Forest
+                                {TrainingAlgorithm.random_forest}
+                            </button>
+                            <button
+                                onClick={() => handleTrainModel('naive_bayes')}
+                                className={`${TrainingAlgorithmColor.naive_bayes} w-full text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer`}
+                            >
+                                {TrainingAlgorithm.naive_bayes}
+                            </button>
+                            <button
+                                onClick={() => handleTrainModel('k_nearest_neighbours')}
+                                className={`${TrainingAlgorithmColor.k_nearest_neighbours} w-full text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer`}
+                            >
+                                {TrainingAlgorithm.k_nearest_neighbours}
+                            </button>
+                            <button
+                                onClick={() => handleTrainModel('support_vector')}
+                                className={`${TrainingAlgorithmColor.support_vector} w-full text-xl mt-10 font-bold py-3 px-4 rounded-lg cursor-pointer`}
+                            >
+                                {TrainingAlgorithm.support_vector}
                             </button>
                         </div>
                     </div>
                 </div>
                 : <p>You've not set respective <span className="py-0.5 px-4 bg-gray-500 font-bold mx-0.5">course columns</span> and <span className="py-0.5 px-4 bg-pink-900 font-bold mx-0.5">grade column</span> on this dataset. It can't be trained yet.</p>}
-            {response && <Modal onClose={() => setResponse({} as TrainedModel)}>
+            {response && <Modal onClose={() => {}}>
                 <h1 className="text-2xl font-bold text-green-300 mb-6">Model Trained!</h1>
                 <div className="px-6">
                     <p>Accuracy of trained model is: <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{response.accuracy}%</span>.
@@ -66,7 +86,7 @@ const Main = () => {
                     <p>Training algorithm used: <span className="py-0.5 px-4 bg-pink-700 font-bold mx-0.5">{TrainingAlgorithm[response.training_algorithm]}</span></p>
                 </div>
             </Modal>}
-            {success && <FooterModal message="Model has been trained, you can go ahead and predict results" />}
+            {success && <FooterModal message={`Model has been trained, accuracy is ${response?.accuracy}% you can go ahead and predict results`} />}
         </>
     )
 }

@@ -11,7 +11,7 @@ from rest_framework import serializers
 from sklearn import metrics
 from Learning.feature_selection import pearson_feature_selection, rfe_feature_selection
 from Learning.utils import GRADE_VALUE, TRANSPOSED_GP_VALUE, produce_dataframe, read_file_data, ALLOWED_EXTENSIONS
-from Learning.classifier import decision_tree_classifier, random_forest_classifier
+from Learning.classifier import decision_tree_classifier, k_nearest_neighbours, naive_bayes, random_forest_classifier, support_vector_machine
 from .models import TrainingModel
 from .utils import arrayfy_strings, clean_array, remove_chars_from_string
 
@@ -183,7 +183,10 @@ class TrainModelSerializer(serializers.ModelSerializer):
     def update(self, instance: TrainingModel, validated_data: Dict[str, str]):
         TRAINING_ALGORITHMS: Dict[str, callable] = {
             'decision_tree': decision_tree_classifier,
-            'random_forest': random_forest_classifier
+            'random_forest': random_forest_classifier,
+            'naive_bayes': naive_bayes,
+            'k_nearest_neighbours': k_nearest_neighbours,
+            'support_vector': support_vector_machine
         }
 
         transformed_feature_columns = remove_chars_from_string(

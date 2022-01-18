@@ -7,12 +7,18 @@ export enum FeatureSelectionAlgorithm {
 
 export enum TrainingAlgorithm {
     decision_tree = 'Decision Tree Classifier',
-    random_forest = 'Random Forest'
+    random_forest = 'Random Forest',
+    naive_bayes = 'Naive Bayes',
+    k_nearest_neighbours = 'K Nearest Neighbours',
+    support_vector = 'Support Vector Machine'
 }
 
 export enum TrainingAlgorithmColor {
-    decision_tree = 'bg-blue-500 text-white',
-    random_forest = 'bg-yellow-500 text-white',
+    decision_tree = 'bg-blue-400 hover:bg-blue-600 text-white',
+    random_forest = 'bg-yellow-400 hover:bg-yellow-600 text-white',
+    naive_bayes = 'bg-green-400 hover:bg-green-600 text-white',
+    k_nearest_neighbours = 'bg-pink-400 hover:bg-pink-600 text-white',
+    support_vector = 'bg-red-400 hover:bg-red-600 text-white',
     fallback = ''
 }
 
